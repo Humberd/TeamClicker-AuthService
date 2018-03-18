@@ -19,6 +19,7 @@
     </parent>
 
     <properties>
+        <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
@@ -30,7 +31,11 @@
         <kotson.version>2.5.0</kotson.version>
         <springfox.version>2.7.0</springfox.version>
         <facebook.version>2.4.11</facebook.version>
-        <junit-jupiter.version>5.0.2</junit-jupiter.version>
+        <junit-jupiter-api.version>5.0.2</junit-jupiter-api.version>
+        <junit-jupiter-engine.version>5.0.1</junit-jupiter-engine.version>
+
+        <!--https://stackoverflow.com/a/30263063/4256929-->
+        <start-class>com.teamclicker.authservice.AuthServiceApplicationKt</start-class>
     </properties>
 
     <dependencies>
@@ -63,7 +68,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-maven-noarg</artifactId>
-            <version>1.1.60</version>
+            <version>${kotlin.version}</version>
         </dependency>
 
         <!--JWT-->
@@ -119,7 +124,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit-jupiter.version}</version>
+            <version>${junit-jupiter-api.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -165,6 +170,25 @@
                         <groupId>org.jetbrains.kotlin</groupId>
                         <artifactId>kotlin-maven-allopen</artifactId>
                         <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <!--this makes sure that surefire (testing framework) picks up jUnit5 tests,
+                because it could only detect jUnit4 tests-->
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <!--version 2.20.1 doesn't work-->
+                <version>2.19.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.0.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>${junit-jupiter-engine.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
