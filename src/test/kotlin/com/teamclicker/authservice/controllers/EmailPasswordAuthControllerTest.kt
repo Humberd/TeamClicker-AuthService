@@ -3,10 +3,10 @@
 package com.teamclicker.authservice.controllers
 
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
-import com.teamclicker.authservice.helpers.AuthHelper
-import com.teamclicker.authservice.helpers.AuthHelper.Companion.ALICE
-import com.teamclicker.authservice.helpers.AuthHelper.Companion.BOB
-import com.teamclicker.authservice.helpers.JwtExtractorHelper
+import com.teamclicker.authservice.testhelpers.AuthHelper
+import com.teamclicker.authservice.testhelpers.AuthHelper.Companion.ALICE
+import com.teamclicker.authservice.testhelpers.AuthHelper.Companion.BOB
+import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*

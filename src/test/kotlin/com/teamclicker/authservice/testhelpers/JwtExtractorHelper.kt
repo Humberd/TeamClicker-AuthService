@@ -1,4 +1,4 @@
-package com.teamclicker.authservice.helpers
+package com.teamclicker.authservice.testhelpers
 
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.Constants.JWT_PUBLIC_KEY

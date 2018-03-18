@@ -1,10 +1,9 @@
-package com.teamclicker.authservice.helpers
+package com.teamclicker.authservice.testhelpers
 
-import com.teamclicker.authservice.models.SpringErrorResponse
-import com.teamclicker.authservice.models.UserAccountMock
+import com.teamclicker.authservice.testmodels.SpringErrorResponse
+import com.teamclicker.authservice.testmodels.UserAccountMock
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Service
 import kotlin.reflect.KClass
 
 class AuthHelper(private val http: TestRestTemplate) {

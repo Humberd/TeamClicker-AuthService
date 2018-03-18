@@ -15,14 +15,11 @@ interface UserAccountRepository : JpaRepository<UserAccountDAO, Long> {
         """)
     fun findByEmail(@Param("emailLc") emailLc: String): UserAccountDAO?
 
-    //    @Query("""
-//        select true
-//        from UserAccountDAO as user
-//        where exists (
-//            select emailPasswordAuth
-//            from user.emailPasswordAuth as emailPasswordAuth
-//            where emailPasswordAuth.emailLc = :emailLc
-//        )
-//        """)
-    fun existsByEmailPasswordAuth_EmailLc(@Param("emailLc") emailLc: String): Boolean
+    // https://stackoverflow.com/a/12052390/4256929
+    @Query("""
+        select case when (count (user) > 0) then true else false end
+        from UserAccountDAO as user
+        where user.emailPasswordAuth.emailLc = :emailLc
+        """)
+    fun existsByEmail(@Param("emailLc") emailLc: String): Boolean
 }

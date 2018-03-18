@@ -47,7 +47,7 @@ Creates a new User Account and automatically signs the User in.
     @Transactional
     @PostMapping("/signUp")
     fun signUp(@RequestBody @Valid body: EmailPasswordSignUpDTO): ResponseEntity<Void> {
-        val userExists = userAccountRepository.existsByEmailPasswordAuth_EmailLc(body.email?.toLowerCase()!!)
+        val userExists = userAccountRepository.existsByEmail(body.email?.toLowerCase()!!)
         if (userExists) {
             throw EntityAlreadyExistsException("User with this email already exists")
         }
