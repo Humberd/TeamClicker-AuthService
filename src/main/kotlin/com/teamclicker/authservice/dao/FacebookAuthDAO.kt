@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 @Entity
-@Table
+@Table(name = "facebookAuth")
 class FacebookAuthDAO {
     @Id
     @Column(name = "id", nullable = false, updatable = false)

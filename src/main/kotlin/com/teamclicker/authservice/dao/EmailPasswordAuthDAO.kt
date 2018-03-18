@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 @Entity
-@Table
+@Table(name = "emailPasswordAuth")
 class EmailPasswordAuthDAO {
     @Id
     @Column(name = "id", nullable = false, updatable = false)

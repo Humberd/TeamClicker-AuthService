@@ -5,7 +5,7 @@ import javax.persistence.*
 import javax.validation.constraints.NotNull
 
 @Entity
-@Table
+@Table(name = "userAccountDeletion")
 class UserAccountDeletionDAO {
     @Id
     @Column(name = "id", nullable = false, updatable = false)
