@@ -165,7 +165,7 @@ internal class EmailPasswordAuthControllerTest {
         }
 
         @Test
-        fun `should not signIn when providing invalid credentials`() {
+        fun `should not signIn when providing invalid password for existing user`() {
             authHelper.signUp()
                     .with(ALICE)
                     .expectSuccess()
@@ -179,8 +179,26 @@ internal class EmailPasswordAuthControllerTest {
                     .also {
                         assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
                     }
+        }
 
+        @Test
+        fun `should not signIn when providing credential fornot existing user`() {
+            authHelper.signUp()
+                    .with(ALICE)
+                    .expectSuccess()
+                    .also {
+                        assertEquals(HttpStatus.OK, it.statusCode)
+                    }
 
+            authHelper.signIn()
+                    .with(ALICE.also {
+                        it.email = "differentMail.mail.com"
+                        it.password = "differentPassword123"
+                    })
+                    .expectError()
+                    .also {
+                        assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
+                    }
         }
     }
 }

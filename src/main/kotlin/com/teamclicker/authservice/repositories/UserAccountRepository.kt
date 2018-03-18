@@ -12,10 +12,8 @@ interface UserAccountRepository : JpaRepository<UserAccountDAO, Long> {
         select user
         from UserAccountDAO as user
         where user.emailPasswordAuth.emailLc = :emailLc
-        and user.emailPasswordAuth.password = :password
         """)
-    fun findByEmailPassword(@Param("emailLc") emailLc: String,
-                            @Param("password") password: String): UserAccountDAO?
+    fun findByEmail(@Param("emailLc") emailLc: String): UserAccountDAO?
 
     //    @Query("""
 //        select true

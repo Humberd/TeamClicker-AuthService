@@ -18,6 +18,7 @@ import mu.KLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -27,7 +28,8 @@ import javax.validation.Valid
 @RequestMapping("/api/auth/emailPassword")
 class EmailPasswordAuthController(
         private val userAccountRepository: UserAccountRepository,
-        private val jwtHelper: JWTHelper
+        private val jwtHelper: JWTHelper,
+        private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ) {
 
     @ApiOperation(value = "Creates a new User Account", notes = """
@@ -52,7 +54,7 @@ Creates a new User Account and automatically signs the User in.
         val newUserAccount = UserAccountDAO().also {
             it.emailPasswordAuth = EmailPasswordAuthDAO().also {
                 it.email = body.email
-                it.password = body.password
+                it.password = bCryptPasswordEncoder.encode(body.password)
             }
         }
 
@@ -75,8 +77,16 @@ Creates a new User Account and automatically signs the User in.
     @PreAuthorize("isAnonymous()")
     @PostMapping("/signIn")
     fun signIn(@RequestBody @Valid body: EmailPasswordSignInDTO): ResponseEntity<Void> {
-        val userAccount = userAccountRepository.findByEmailPassword(body.email!!.toLowerCase(), body.password!!)
+        val userAccount = userAccountRepository.findByEmail(body.email!!.toLowerCase())
         if (userAccount === null) {
+            logger.trace { "User not found" }
+            throw InvalidCredentialsException("Invalid credentials")
+        }
+
+        val encodedPassword = userAccount.emailPasswordAuth?.password
+        val rawPassword = body.password
+        if (!bCryptPasswordEncoder.matches(rawPassword, encodedPassword)) {
+            logger.trace { "Passwords don't match" }
             throw InvalidCredentialsException("Invalid credentials")
         }
 
