@@ -38,9 +38,9 @@ node {
             withEnv([
                     "COMMIT=${getCommit()}",
                     "BUILD_NO=${getBuildNumber()}",
-                    "TC_AUTH_TESTS_DATABSE_URL=jdbc:postgresql://127.0.0.1:5400/postgres",
-                    "TC_AUTH_TESTS_DATABSE_USERNAME=postgres",
-                    "TC_AUTH_TESTS_DATABSE_PASSWORD=admin123"
+                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://127.0.0.1:5400/postgres",
+                    "TC_AUTH_TESTS_DATABASE_USERNAME=postgres",
+                    "TC_AUTH_TESTS_DATABASE_PASSWORD=admin123"
             ]) {
                 withMaven(maven: "Maven") {
                     sh "mvn test -DargLine='-Dspring.profiles.active=production'"
