@@ -16,6 +16,6 @@ class DateDeserializer : JsonDeserializer<Date> {
 class DateSerializer : JsonSerializer<Date> {
     override fun serialize(date: Date?, typeOfSrc: Type,
                            context: JsonSerializationContext): JsonElement? {
-        return if (date == null) null else JsonPrimitive(date!!.getTime())
+        return if (date == null) null else JsonPrimitive(date.getTime())
     }
 }
