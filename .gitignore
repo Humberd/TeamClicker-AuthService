@@ -24,3 +24,6 @@ nbdist/
 .nb-gradle/
 
 firebase-config.json
+
+*.key
+*.key.pub
