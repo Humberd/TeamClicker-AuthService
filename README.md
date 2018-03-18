@@ -2,14 +2,10 @@
 
 ## Required deployment files:
 
- 1. jwtRS512.key - private key
- 2. jwtRS512.key.pub - public key
+ 1. public_key.der - private key
+ 2. private_key.der - public key
 
-```bash
-ssh-keygen -t rsa -b 4096 -f jwtRS512.key
-# Don't add passphrase
-openssl rsa -in jwtRS512.key -pubout -outform PEM -out jwtRS512.key.pub
-```
+How to create keys -> https://stackoverflow.com/a/19387517/4256929
 
 ## Required deployment environment variables:
 

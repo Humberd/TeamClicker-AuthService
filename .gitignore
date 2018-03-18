@@ -27,3 +27,5 @@ firebase-config.json
 
 *.key
 *.key.pub
+*.der
+*.pem
