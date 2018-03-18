@@ -6,6 +6,7 @@ import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.helpers.AuthHelper
 import com.teamclicker.authservice.helpers.AuthHelper.Companion.ALICE
 import com.teamclicker.authservice.helpers.AuthHelper.Companion.BOB
+import com.teamclicker.authservice.helpers.JwtExtractorHelper
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
@@ -24,6 +25,8 @@ internal class EmailPasswordAuthControllerTest {
     lateinit var http: TestRestTemplate
     @Autowired
     lateinit var userAccountRepository: UserAccountRepository
+    @Autowired
+    lateinit var jwtExtractorHelper: JwtExtractorHelper
     lateinit var authHelper: AuthHelper
 
     @BeforeAll
@@ -39,14 +42,17 @@ internal class EmailPasswordAuthControllerTest {
         }
 
         @Test
-        fun `should signUp`() {
-            authHelper.signUp()
+        fun `should signUp and have a default 'USER' role`() {
+            val response = authHelper.signUp()
                     .with(ALICE)
                     .expectSuccess()
                     .also {
                         assertEquals(HttpStatus.OK, it.statusCode)
                         assertNotNull(it.headers.get(JWT_HEADER_NAME))
                     }
+
+            val jwtData = jwtExtractorHelper.getJwtData(response)
+            assertEquals(listOf("USER"), jwtData.roles)
         }
 
         @Test

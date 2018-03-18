@@ -20,7 +20,7 @@ class JWTHelper(
     fun convertUserAccountToJwtString(userAccount: UserAccountDAO, authenticationMethod: AuthenticationMethod): String {
         val customClaims = jwtDataToClaimsMapper.parse(JWTData(
                 accountId = userAccount.id!!,
-                roles = listOf(UserRole.ADMIN),
+                roles = userAccount.roles.map { it.id!! },
                 authenticationMethod = authenticationMethod
         ))
 

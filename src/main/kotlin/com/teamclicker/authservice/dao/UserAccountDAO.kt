@@ -4,7 +4,6 @@ import java.util.*
 import javax.persistence.*
 import javax.validation.constraints.NotNull
 
-
 @Entity
 @Table(name = "userAccount")
 class UserAccountDAO {
@@ -29,6 +28,13 @@ class UserAccountDAO {
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true, optional = true)
     @JoinColumn(name = "facebookAuthId", nullable = true)
     var facebookAuth: FacebookAuthDAO? = null
+
+    @ManyToMany()
+    @JoinTable(name = "userAccountUserRole",
+            joinColumns = [JoinColumn(name = "userAccountId")],
+            inverseJoinColumns = [JoinColumn(name = "userRoleId")]
+    )
+    var roles: List<UserRoleDAO> = emptyList()
 
     @PrePersist
     protected fun onCreate() {

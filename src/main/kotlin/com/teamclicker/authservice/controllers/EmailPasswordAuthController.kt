@@ -3,6 +3,7 @@ package com.teamclicker.authservice.controllers
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.dao.EmailPasswordAuthDAO
 import com.teamclicker.authservice.dao.UserAccountDAO
+import com.teamclicker.authservice.dao.UserRoleDAO
 import com.teamclicker.authservice.dto.EmailPasswordSignInDTO
 import com.teamclicker.authservice.dto.EmailPasswordSignUpDTO
 import com.teamclicker.authservice.exceptions.EntityAlreadyExistsException
@@ -56,6 +57,7 @@ Creates a new User Account and automatically signs the User in.
                 it.email = body.email
                 it.password = bCryptPasswordEncoder.encode(body.password)
             }
+            it.roles = listOf(UserRoleDAO("USER"))
         }
 
 

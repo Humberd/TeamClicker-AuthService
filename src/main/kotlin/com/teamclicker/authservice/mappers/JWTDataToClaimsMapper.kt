@@ -11,7 +11,7 @@ class JWTDataToClaimsMapper : AbstractMapper<JWTData, Claims>() {
         return DefaultClaims(mapOf(
                 "accountId" to from.accountId,
                 "authenticationMethod" to from.authenticationMethod.name,
-                "roles" to from.roles.map { it.name }
+                "roles" to from.roles
         ))
     }
 }
