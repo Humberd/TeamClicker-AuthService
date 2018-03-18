@@ -2,13 +2,11 @@
 
 package com.teamclicker.authservice.repositories
 
-import com.teamclicker.authservice.dao.EmailPasswordAuthDAO
-import com.teamclicker.authservice.dao.UserAccountDAO
+import com.teamclicker.authservice.testhelpers.AuthHelper.Companion.ALICE
+import com.teamclicker.authservice.testhelpers.AuthHelper.Companion.BOB
+import com.teamclicker.authservice.testhelpers.UserAccountRepositoryHelper
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,6 +18,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 internal class UserAccountRepositoryTest {
     @Autowired
     lateinit var userAccountRepository: UserAccountRepository
+    lateinit var repositoryHelper: UserAccountRepositoryHelper
+    @BeforeAll
+    fun beforeAll() {
+        repositoryHelper = UserAccountRepositoryHelper(userAccountRepository)
+    }
 
     @Nested
     inner class FindByEmail {
@@ -30,32 +33,18 @@ internal class UserAccountRepositoryTest {
 
         @Test
         fun `should get a UserAccount`() {
-            userAccountRepository.saveAll(listOf(
-                    UserAccountDAO().also {
-                        it.emailPasswordAuth = EmailPasswordAuthDAO().also {
-                            it.email = "alice@alice.com"
-                            it.password = "alicePassword"
-                        }
-                    }
-            ))
+            repositoryHelper.add(ALICE)
 
-            val result = userAccountRepository.findByEmail("alice@alice.com")
+            val result = userAccountRepository.findByEmail(ALICE.email!!)
 
             assertNotNull(result)
         }
 
         @Test
         fun `should not get a UserAccount when User with provided email does not exist`() {
-            userAccountRepository.saveAll(listOf(
-                    UserAccountDAO().also {
-                        it.emailPasswordAuth = EmailPasswordAuthDAO().also {
-                            it.email = "alice@alice.com"
-                            it.password = "alicePassword"
-                        }
-                    }
-            ))
+            repositoryHelper.add(ALICE)
 
-            val result = userAccountRepository.findByEmail("bob@bob.com")
+            val result = userAccountRepository.findByEmail(BOB.email!!)
 
             assertNull(result)
         }
@@ -70,32 +59,18 @@ internal class UserAccountRepositoryTest {
 
         @Test
         fun `should return true when User with provided email exists`() {
-            userAccountRepository.saveAll(listOf(
-                    UserAccountDAO().also {
-                        it.emailPasswordAuth = EmailPasswordAuthDAO().also {
-                            it.email = "alice@alice.com"
-                            it.password = "alicePassword"
-                        }
-                    }
-            ))
+            repositoryHelper.add(ALICE)
 
-            val result = userAccountRepository.existsByEmail("alice@alice.com")
+            val result = userAccountRepository.existsByEmail(ALICE.email!!)
 
             assertTrue(result)
         }
 
         @Test
         fun `should return fakse when User with provided email does not exist`() {
-            userAccountRepository.saveAll(listOf(
-                    UserAccountDAO().also {
-                        it.emailPasswordAuth = EmailPasswordAuthDAO().also {
-                            it.email = "alice@alice.com"
-                            it.password = "alicePassword"
-                        }
-                    }
-            ))
+            repositoryHelper.add(ALICE)
 
-            val result = userAccountRepository.existsByEmail("bobe@bob.com")
+            val result = userAccountRepository.existsByEmail(BOB.email!!)
 
             assertFalse(result)
         }
