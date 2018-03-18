@@ -34,11 +34,13 @@ node {
         sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
         sh "docker-compose -f ${dockerComposeFile} up -d"
 
+        containerName = "tc-auth-service-tests-db"
+        dbURL = sh "docker inspect --format='{{println .NetworkSettings.IPAddress}}' ${containerName}"
         try {
             withEnv([
                     "COMMIT=${getCommit()}",
                     "BUILD_NO=${getBuildNumber()}",
-                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://127.0.0.1:5400/postgres",
+                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${dbURL}:5400/postgres",
                     "TC_AUTH_TESTS_DATABASE_USERNAME=postgres",
                     "TC_AUTH_TESTS_DATABASE_PASSWORD=admin123"
             ]) {
