@@ -137,12 +137,6 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${springfox.version}</version>
         </dependency>
-
-        <!--FACEBOOK-->
-        <dependency>
-            <groupId>org.springframework.social</groupId>
-            <artifactId>spring-social-facebook</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
