@@ -35,8 +35,7 @@ node {
         sh "docker-compose -f ${dockerComposeFile} up -d"
 
         containerName = "tc-auth-service-tests-db"
-        dbURL = sh "docker exec ${containerName} bash -c \"ifconfig eth0 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1\""
-        log.info dbURL
+        dbURL = getContainerInternalIp(containerName)
         try {
             withEnv([
                     "COMMIT=${getCommit()}",
@@ -83,4 +82,11 @@ def getCommit() {
 
 def getBuildNumber() {
     return env.BUILD_NUMBER
+}
+
+def getContainerInternalIp(containerName) {
+    return sh(
+            script: "docker exec ${containerName} bash -c \"ifconfig eth0 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1\"",
+            returnStdout: true
+    ).trim()
 }
