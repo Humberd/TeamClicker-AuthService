@@ -36,6 +36,7 @@ node {
 
         containerName = "tc-auth-service-tests-db"
         dbURL = sh "docker exec ${containerName} bash -c \"ifconfig eth0 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1\""
+        log.info dbURL
         try {
             withEnv([
                     "COMMIT=${getCommit()}",
