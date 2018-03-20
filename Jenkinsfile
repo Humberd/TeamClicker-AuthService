@@ -34,9 +34,7 @@ node {
         sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
         sh "docker-compose -f ${dockerComposeFile} up -d"
 
-//        containerName = "tc-auth-service-tests-db"
-//        dbURL = sh "docker inspect --format='{{println .NetworkSettings.IPAddress}}' ${containerName}"
-        dbURL = "10.5.0.5"
+        dbURL = sh "ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print \$1}'"
         try {
             withEnv([
                     "COMMIT=${getCommit()}",
