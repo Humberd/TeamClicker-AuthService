@@ -8,4 +8,4 @@ services:
         - "127.0.0.1:5400:5432"
       environment:
         POSTGRES_USERNAME: postgres
-        POSTGRES_PASSWORD: admin123curl
+        POSTGRES_PASSWORD: admin123
