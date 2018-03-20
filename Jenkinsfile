@@ -34,7 +34,8 @@ node {
         sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
         sh "docker-compose -f ${dockerComposeFile} up -d"
 
-        dbURL = sh "docker exec b9 bash -c \"ifconfig eth0 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1\""
+        containerName = "tc-auth-service-tests-db"
+        dbURL = sh "docker exec ${containerName} bash -c \"ifconfig eth0 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1\""
         try {
             withEnv([
                     "COMMIT=${getCommit()}",
