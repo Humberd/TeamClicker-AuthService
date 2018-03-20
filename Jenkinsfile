@@ -34,12 +34,14 @@ node {
         sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
         sh "docker-compose -f ${dockerComposeFile} up -d"
 
-        dbURL = sh "ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print \$1}'"
+//        containerName = "tc-auth-service-tests-db"
+//        dbURL = sh "docker inspect --format='{{println .NetworkSettings.IPAddress}}' ${containerName}"
+        dbURL = "10.5.0.5"
         try {
             withEnv([
                     "COMMIT=${getCommit()}",
                     "BUILD_NO=${getBuildNumber()}",
-                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${dbURL}:5400/postgres",
+                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${dbURL}:5432/postgres",
                     "TC_AUTH_TESTS_DATABASE_USERNAME=postgres",
                     "TC_AUTH_TESTS_DATABASE_PASSWORD=admin123"
             ]) {
