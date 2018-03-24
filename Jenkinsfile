@@ -1,7 +1,18 @@
 node {
     def project = "team-clicker"
     def appName = "auth-service"
-    def imageTag = "eu.gcr.io/${project}/${appName}:${getBranchName()}.${getBuildNumber()}"
+    def imageTag = "eu.gcr.io/${project}/${appName}:${getBuildNumber()}"
+    /* ---TEST--- */
+    def testDatabase = "tc-auth-service-tests-db:5432/auth-service"
+    def testDatabaseUsername = "postgres"
+    def testDatabasePassword = "admin123"
+    /* ---PROD--- */
+    def prodDatabase = "35.205.205.92:5432/auth-service"
+    def prodDatabaseUsername = "postgres"
+    def prodDatabasePassword = getSecretText("team-clicker-auth-service-prod-db")
+
+    sh "echo foobar"
+    sh "echo ${prodDatabasePassword}"
 
     /**
      * Making sure, that there are only at most 2 artifacts stored on a server,
@@ -44,14 +55,13 @@ node {
         sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
         sh "docker-compose -f ${dockerComposeFile} up -d"
 
-        def dbURL = "tc-auth-service-tests-db"
         try {
             withEnv([
                     "COMMIT=${getCommit()}",
                     "BUILD_NO=${getBuildNumber()}",
-                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${dbURL}:5432/postgres",
-                    "TC_AUTH_TESTS_DATABASE_USERNAME=postgres",
-                    "TC_AUTH_TESTS_DATABASE_PASSWORD=admin123"
+                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${testDatabase}",
+                    "TC_AUTH_TESTS_DATABASE_USERNAME=${testDatabaseUsername}",
+                    "TC_AUTH_TESTS_DATABASE_PASSWORD=${testDatabasePassword}"
             ]) {
                 withMaven(maven: "Maven") {
                     sh "mvn test -DargLine='-Dspring.profiles.active=production'"
@@ -65,22 +75,19 @@ node {
     stage("Deploy") {
         dockerfile = "production.deploy.Dockerfile"
 
-        def dbURL = "foobar"
-        withEnv([
-                "COMMIT=${getCommit()}",
-                "BUILD_NO=${getBuildNumber()}",
-                "TC_AUTH_DATABASE_URL=jdbc:postgresql://${dbURL}:5432/postgres",
-                "TC_AUTH_DATABASE_USERNAME=postgres",
-                "TC_AUTH_DATABASE_PASSWORD=admin123"
-        ]) {
+        try {
             sh script: """
                 docker build \
                     -f ${dockerfile} \
                     -t ${imageTag} \
-                    --build-arg TC_AUTH_DATABASE_URL=\$TC_AUTH_DATABASE_URL \
-                    --build-arg TC_AUTH_DATABASE_USERNAME=\$TC_AUTH_DATABASE_USERNAME \
-                    --build-arg TC_AUTH_DATABASE_PASSWORD=\$TC_AUTH_DATABASE_PASSWORD .
+                    --build-arg COMMIT=${getCommit()} \
+                    --build-arg BUILD_NO=%{${getBuildNumber()} \
+                    --build-arg TC_AUTH_DATABASE_URL=jdbc:postgresql://${prodDatabase}" \
+                    --build-arg TC_AUTH_DATABASE_USERNAME=${prodDatabaseUsername} \
+                    --build-arg TC_AUTH_DATABASE_PASSWORD=${prodDatabasePassword} .
                     """, returnStdout: true
+        } finally {
+            sh "docker rmi ${imageTag}"
         }
     }
 
@@ -99,7 +106,9 @@ def getCommit() {
 def getBuildNumber() {
     return env.BUILD_NUMBER
 }
-
-def getBranchName() {
-    return env.BRANCH_NAME
+def getSecretText(String secretId) {
+    withCredentials([secretText(credentialsId: secretId, variable: secretId)]) {
+        def value = sh script: "echo ${credentialsId}", returnStdout: true
+        return value
+    }
 }
