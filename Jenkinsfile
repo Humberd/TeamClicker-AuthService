@@ -8,8 +8,8 @@ node {
     def testDatabasePassword = "admin123"
     /* ---PROD--- */
     def prodDatabase = "35.205.205.92:5432/auth-service"
-    def prodDatabaseUsername = "postgres"
-    def prodDatabasePassword = getSecretText("team-clicker-auth-service-prod-db")
+    def prodDatabaseUsername = null //from secrets
+    def prodDatabasePassword = null //from secrets
 
     sh "echo foobar"
     sh "echo ${prodDatabasePassword}"
@@ -76,7 +76,8 @@ node {
         dockerfile = "production.deploy.Dockerfile"
 
         try {
-            sh script: """
+            withCredentials([usernamePassword(credentialsId: 'team-clicker-auth-service-prod-db-user', usernameVariable: 'prodDatabaseUsername', passwordVariable: 'prodDatabasePassword')]) {
+                sh script: """
                 docker build \
                     -f ${dockerfile} \
                     -t ${imageTag} \
@@ -86,6 +87,7 @@ node {
                     --build-arg TC_AUTH_DATABASE_USERNAME=${prodDatabaseUsername} \
                     --build-arg TC_AUTH_DATABASE_PASSWORD=${prodDatabasePassword} .
                     """, returnStdout: true
+            }
         } finally {
             sh "docker rmi ${imageTag}"
         }
@@ -108,7 +110,7 @@ def getBuildNumber() {
 }
 def getSecretText(String secretId) {
     withCredentials([string(credentialsId: secretId, variable: secretId)]) {
-        def value = sh script: "echo ${credentialsId}", returnStdout: true
+        def value = sh script: "echo ${secretId}", returnStdout: true
         return value
     }
 }
