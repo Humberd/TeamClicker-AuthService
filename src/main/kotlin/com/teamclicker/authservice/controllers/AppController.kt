@@ -30,11 +30,8 @@ Returns a status of the deployed app including:
             <h2>Status</h2>
             <div>Service: Auth Service</div>
             <div>Container Id: ${System.getenv("HOSTNAME")}</div>
-            <div>Build number: ${System.getenv("BUILD_NO")}</div>
-            <hr>
-            <div>
-                <pre>${System.getenv("COMMIT")}</pre>
-            </div>
+            <div>Build number: ${System.getenv("BUILD_NUMBER")}</div>
+            <div>Commit hash: ${System.getenv("COMMIT_HASH")}</div>
             """
     }
 

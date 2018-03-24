@@ -41,29 +41,29 @@ node {
         }
     }
 
-//    stage("Test") {
-//        //noinspection GroovyAssignabilityCheck
-//        dockerComposeFile = "production.testing.docker-compose.yml"
-//
-//        sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
-//        sh "docker-compose -f ${dockerComposeFile} up -d"
-//
-//        try {
-//            withEnv([
-//                    "COMMIT=${getCommit()}",
-//                    "BUILD_NO=${getBuildNumber()}",
-//                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${testDatabase}",
-//                    "TC_AUTH_TESTS_DATABASE_USERNAME=${testDatabaseUsername}",
-//                    "TC_AUTH_TESTS_DATABASE_PASSWORD=${testDatabasePassword}"
-//            ]) {
-//                withMaven(maven: "Maven") {
-//                    sh "mvn test -DargLine='-Dspring.profiles.active=production'"
-//                }
-//            }
-//        } finally {
-//            sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
-//        }
-//    }
+    stage("Test") {
+        //noinspection GroovyAssignabilityCheck
+        dockerComposeFile = "production.testing.docker-compose.yml"
+
+        sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
+        sh "docker-compose -f ${dockerComposeFile} up -d"
+
+        try {
+            withEnv([
+                    "COMMIT_HASH=${getCommitHash()}",
+                    "BUILD_NO=${getBuildNumber()}",
+                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${testDatabase}",
+                    "TC_AUTH_TESTS_DATABASE_USERNAME=${testDatabaseUsername}",
+                    "TC_AUTH_TESTS_DATABASE_PASSWORD=${testDatabasePassword}"
+            ]) {
+                withMaven(maven: "Maven") {
+                    sh "mvn test -DargLine='-Dspring.profiles.active=production'"
+                }
+            }
+        } finally {
+            sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
+        }
+    }
 
     stage("Deploy") {
         dockerfile = "production.deploy.Dockerfile"
@@ -73,8 +73,8 @@ node {
                 docker build \
                     -f ${dockerfile} \
                     -t ${imageTag} \
-                    --build-arg COMMIT='tempCommitName' \
-                    --build-arg BUILD_NO=${getBuildNumber()} . \
+                    --build-arg COMMIT_HASH=${getCommitHash()} \
+                    --build-arg BUILD_NUMBER=${getBuildNumber()} . \
                     """, returnStdout: true
 
             withCredentials([file(credentialsId: 'TeamClickerAuthServiceDeployer', variable: 'TeamClickerAuthServiceDeployer')]) {
@@ -91,9 +91,9 @@ node {
     }
 }
 
-def getCommit() {
+def getCommitHash() {
     return sh(
-            script: "git show -s",
+            script: "git show -s --format=%H",
             returnStdout: true
     ).trim()
 }
