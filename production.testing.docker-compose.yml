@@ -4,8 +4,6 @@ services:
   postgres:
     container_name: tc-auth-service-tests-db
     image: postgres:10-alpine
-    ports:
-      - "127.0.0.1:5400:5432"
     environment:
       POSTGRES_USERNAME: postgres
       POSTGRES_PASSWORD: admin123

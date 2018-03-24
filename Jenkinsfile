@@ -40,7 +40,7 @@ node {
             withEnv([
                     "COMMIT=${getCommit()}",
                     "BUILD_NO=${getBuildNumber()}",
-                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${dbURL}:5400/postgres",
+                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${dbURL}:5432/postgres",
                     "TC_AUTH_TESTS_DATABASE_USERNAME=postgres",
                     "TC_AUTH_TESTS_DATABASE_PASSWORD=admin123"
             ]) {
