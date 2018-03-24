@@ -81,7 +81,7 @@ node {
                 docker build \
                     -f ${dockerfile} \
                     -t ${imageTag} \
-                    --build-arg COMMIT=${getCommit()} \
+                    --build-arg COMMIT='${getCommit()}' \
                     --build-arg BUILD_NO=%{${getBuildNumber()} \
                     --build-arg TC_AUTH_DATABASE_URL=jdbc:postgresql://${prodDatabase}" \
                     --build-arg TC_AUTH_DATABASE_USERNAME=${prodDatabaseUsername} \
