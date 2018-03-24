@@ -1,0 +1,18 @@
+# this Dockerfile is responsible for hosting api
+FROM openjdk:8-jdk-alpine
+COPY target/tc-auth-service*.jar tc-auth-service.jar
+
+ARG TC_AUTH_DATABASE_URL
+ENV TC_AUTH_DATABASE_URL=$TC_AUTH_DATABASE_URL
+
+ARG TC_AUTH_DATABASE_USERNAME
+ENV TC_AUTH_DATABASE_USERNAME=$TC_AUTH_DATABASE_USERNAME
+
+ARG TC_AUTH_DATABASE_PASSWORD
+ENV TC_AUTH_DATABASE_PASSWORD=$TC_AUTH_DATABASE_PASSWORD
+
+ENV JAVA_OPTS="-Dspring.profiles.active=production"
+
+EXPOSE 8080
+
+ENTRYPOINT exec java $JAVA_OPTS -jar tc-auth-service.jar

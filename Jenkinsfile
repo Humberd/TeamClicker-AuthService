@@ -1,4 +1,8 @@
 node {
+    def project = "team-clicker"
+    def appName = "auth-service"
+    def imageTag = "eu.gcr.io/${project}/${appName}:${getBranchName()}.${getBuildNumber()}"
+
     /**
      * Making sure, that there are only at most 2 artifacts stored on a server,
      * because We don't want to waste a storage on a server, do we?
@@ -40,7 +44,7 @@ node {
         sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
         sh "docker-compose -f ${dockerComposeFile} up -d"
 
-        dbURL = "tc-auth-service-tests-db"
+        def dbURL = "tc-auth-service-tests-db"
         try {
             withEnv([
                     "COMMIT=${getCommit()}",
@@ -58,20 +62,27 @@ node {
         }
     }
 
-//    stage("Deploy") {
-//        dockerComposeFile = "production.deployment.docker-compose.yml"
-//
-//        /**
-//         * Setting environment variables only for a docker container
-//         */
-//        withEnv([
-//                "COMMIT=${getCommit()}",
-//                "BUILD_NO=${getBuildNumber()}"
-//        ]) {
-//            sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
-//            sh "docker-compose -f ${dockerComposeFile} up -d"
-//        }
-//    }
+    stage("Deploy") {
+        dockerfile = "production.deploy.Dockerfile"
+
+        def dbURL = "foobar"
+        withEnv([
+                "COMMIT=${getCommit()}",
+                "BUILD_NO=${getBuildNumber()}",
+                "TC_AUTH_DATABASE_URL=jdbc:postgresql://${dbURL}:5432/postgres",
+                "TC_AUTH_DATABASE_USERNAME=postgres",
+                "TC_AUTH_DATABASE_PASSWORD=admin123"
+        ]) {
+            sh script: """
+                docker build \
+                    -f ${dockerfile} \
+                    -t ${imageTag} \
+                    --build-arg TC_AUTH_DATABASE_URL=\$TC_AUTH_DATABASE_URL \
+                    --build-arg TC_AUTH_DATABASE_USERNAME=\$TC_AUTH_DATABASE_USERNAME \
+                    --build-arg TC_AUTH_DATABASE_PASSWORD=\$TC_AUTH_DATABASE_PASSWORD .
+                    """, returnStdout: true
+        }
+    }
 
     stage("Post Cleanup") {
         deleteDir()
@@ -87,4 +98,8 @@ def getCommit() {
 
 def getBuildNumber() {
     return env.BUILD_NUMBER
+}
+
+def getBranchName() {
+    return env.BRANCH_NAME
 }
