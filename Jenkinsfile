@@ -78,18 +78,8 @@ node {
                     """, returnStdout: true
 
             withCredentials([file(credentialsId: 'TeamClickerAuthServiceDeployer', variable: 'TeamClickerAuthServiceDeployer')]) {
-
-                def gCloudSdkCommands = """
-                    cd tmp;
-                    echo '${getFileContent('TeamClickerAuthServiceDeployer')}' > credentials.json;
-                    gcloud auth activate-service-account --key-file=credentials.json;
-
-                    gcloud docker -- push ${imageTag}
-
-                    exit
-                """
-
-                sh "docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock google/cloud-sdk bash -c '${gCloudSdkCommands}'"
+                sh "gcloud auth activate-service-account --key-file=\$TeamClickerAuthServiceDeployer"
+                sh "gcloud docker -- push ${imageTag}"
             }
         } finally {
 //            sh "docker rmi ${imageTag}"
