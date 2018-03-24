@@ -78,7 +78,7 @@ node {
                     """, returnStdout: true
 
             withCredentials([file(credentialsId: 'TeamClickerAuthServiceDeployer', variable: 'TeamClickerAuthServiceDeployer')]) {
-                sh "gcloud auth activate-service-account --key-file=\$TeamClickerAuthServiceDeployer"
+                sh "gcloud auth activate-service-account --key-file='\$TeamClickerAuthServiceDeployer'"
                 sh "gcloud docker -- push ${imageTag}"
             }
         } finally {
