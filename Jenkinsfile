@@ -74,7 +74,7 @@ node {
                     -f ${dockerfile} \
                     -t ${imageTag} \
                     --build-arg COMMIT='tempCommitName' \
-                    --build-arg BUILD_NO=%{${getBuildNumber()} \
+                    --build-arg BUILD_NO=${getBuildNumber()} \
                     """, returnStdout: true
 
             withCredentials([file(credentialsId: 'TeamClickerAuthServiceDeployer', variable: 'TeamClickerAuthServiceDeployer')]) {
