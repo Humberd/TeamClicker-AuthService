@@ -80,7 +80,7 @@ node {
                     -t ${imageTag} \
                     --build-arg COMMIT='tempCommitName' \
                     --build-arg BUILD_NO=%{${getBuildNumber()} \
-                    --build-arg TC_AUTH_DATABASE_URL=jdbc:postgresql://${prodDatabase}" \
+                    --build-arg TC_AUTH_DATABASE_URL=jdbc:postgresql://${prodDatabase} \
                     --build-arg TC_AUTH_DATABASE_USERNAME=${prodDatabaseUsername} \
                     --build-arg TC_AUTH_DATABASE_PASSWORD=${prodDatabasePassword} .
                     """, returnStdout: true
