@@ -11,9 +11,6 @@ node {
     def prodDatabaseUsername = null //from secrets
     def prodDatabasePassword = null //from secrets
 
-    sh "echo foobar"
-    sh "echo ${prodDatabasePassword}"
-
     /**
      * Making sure, that there are only at most 2 artifacts stored on a server,
      * because We don't want to waste a storage on a server, do we?
@@ -81,7 +78,7 @@ node {
                 docker build \
                     -f ${dockerfile} \
                     -t ${imageTag} \
-                    --build-arg COMMIT='${getCommit()}' \
+                    --build-arg COMMIT='tempCommitName' \
                     --build-arg BUILD_NO=%{${getBuildNumber()} \
                     --build-arg TC_AUTH_DATABASE_URL=jdbc:postgresql://${prodDatabase}" \
                     --build-arg TC_AUTH_DATABASE_USERNAME=${prodDatabaseUsername} \
