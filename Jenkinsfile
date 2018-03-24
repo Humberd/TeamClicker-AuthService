@@ -3,13 +3,9 @@ node {
     def appName = "auth-service"
     def imageTag = "eu.gcr.io/${project}/${appName}:${getBuildNumber()}"
     /* ---TEST--- */
-    def testDatabase = "tc-auth-service-tests-db:5432/auth-service"
+    def testDatabase = "tc-auth-service-tests-db:5432/auth-service-tests"
     def testDatabaseUsername = "postgres"
     def testDatabasePassword = "admin123"
-    /* ---PROD--- */
-    def prodDatabase = "35.205.205.92:5432/auth-service"
-    def prodDatabaseUsername = null //from secrets
-    def prodDatabasePassword = null //from secrets
 
     /**
      * Making sure, that there are only at most 2 artifacts stored on a server,
@@ -73,17 +69,23 @@ node {
         dockerfile = "production.deploy.Dockerfile"
 
         try {
-            withCredentials([usernamePassword(credentialsId: 'team-clicker-auth-service-prod-db-user', usernameVariable: 'prodDatabaseUsername', passwordVariable: 'prodDatabasePassword')]) {
-                sh script: """
+            sh script: """
                 docker build \
                     -f ${dockerfile} \
                     -t ${imageTag} \
                     --build-arg COMMIT='tempCommitName' \
                     --build-arg BUILD_NO=%{${getBuildNumber()} \
-                    --build-arg TC_AUTH_DATABASE_URL=jdbc:postgresql://${prodDatabase} \
-                    --build-arg TC_AUTH_DATABASE_USERNAME=${prodDatabaseUsername} \
-                    --build-arg TC_AUTH_DATABASE_PASSWORD=${prodDatabasePassword} .
                     """, returnStdout: true
+
+            withCredentials([file(credentialsId: 'TeamClickerAuthServiceDeployer', variable: 'TeamClickerAuthServiceDeployer')]) {
+
+                def gCloudSdkCommands = """
+                    gcloud docker -- push ${imageTag}
+
+                    exit
+                """
+
+                sh "docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock google/cloud-sdk bash -c '${gCloudSdkCommands}'"
             }
         } finally {
 //            sh "docker rmi ${imageTag}"
@@ -105,6 +107,7 @@ def getCommit() {
 def getBuildNumber() {
     return env.BUILD_NUMBER
 }
+
 def getSecretText(String secretId) {
     withCredentials([string(credentialsId: secretId, variable: secretId)]) {
         def value = sh script: "echo ${secretId}", returnStdout: true

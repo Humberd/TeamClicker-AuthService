@@ -5,7 +5,7 @@ services:
     container_name: tc-auth-service-tests-db
     image: postgres:10-alpine
     environment:
-      POSTGRES_DB: auth-service
+      POSTGRES_DB: auth-service-tests
       POSTGRES_USERNAME: postgres
       POSTGRES_PASSWORD: admin123
     networks:
