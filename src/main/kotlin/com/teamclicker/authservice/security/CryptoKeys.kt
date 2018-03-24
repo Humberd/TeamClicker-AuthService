@@ -1,5 +1,7 @@
 package com.teamclicker.authservice.security
 
+import com.teamclicker.authservice.Constants.JWT_PRIVATE_KEY_NAME
+import com.teamclicker.authservice.Constants.JWT_PUBLIC_KEY_NAME
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import java.security.KeyFactory
@@ -14,8 +16,8 @@ class CryptoKeys {
     final val JWT_PUBLIC_KEY: PublicKey
 
     init {
-        JWT_PRIVATE_KEY = this.getPrivateRSAKey("private_key.der")
-        JWT_PUBLIC_KEY = this.getPublicRSAKey("public_key.der")
+        JWT_PRIVATE_KEY = this.getPrivateRSAKey(JWT_PRIVATE_KEY_NAME)
+        JWT_PUBLIC_KEY = this.getPublicRSAKey(JWT_PUBLIC_KEY_NAME)
     }
 
     fun getPrivateRSAKey(path: String): PrivateKey {

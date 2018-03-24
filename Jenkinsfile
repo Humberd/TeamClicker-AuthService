@@ -22,8 +22,14 @@ node {
 
     stage("Build") {
         //noinspection GroovyAssignabilityCheck
-        withMaven(maven: "Maven") {
-            sh "mvn clean install -DskipTests=true"
+        withCredentials([file(credentialsId: 'TC_JWT_PRIVATE_KEY', variable: 'TC_JWT_PRIVATE_KEY'),
+                         file(credentialsId: 'TC_JWT_PUBLIC_KEY', variable: 'TC_JWT_PUBLIC_KEY')]) {
+            sh "cp \$TC_JWT_PRIVATE_KEY src/main/resources/jwt_private_key.der"
+            sh "cp \$TC_JWT_PUBLIC_KEY src/main/resources/jwt_public_key.der"
+
+            withMaven(maven: "Maven") {
+                sh "mvn clean install -DskipTests=true"
+            }
         }
     }
 
@@ -37,18 +43,15 @@ node {
         containerName = "tc-auth-service-tests-db"
         dbURL = "tc-auth-service-tests-db"
         try {
-            withCredentials([file(credentialsId: 'TC_JWT_PRIVATE_KEY', variable: 'TC_JWT_PRIVATE_KEY'),
-                             file(credentialsId: 'TC_JWT_PUBLIC_KEY', variable: 'TC_JWT_PUBLIC_KEY')]) {
-                withEnv([
-                        "COMMIT=${getCommit()}",
-                        "BUILD_NO=${getBuildNumber()}",
-                        "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${dbURL}:5432/postgres",
-                        "TC_AUTH_TESTS_DATABASE_USERNAME=postgres",
-                        "TC_AUTH_TESTS_DATABASE_PASSWORD=admin123"
-                ]) {
-                    withMaven(maven: "Maven") {
-                        sh "mvn test -DargLine='-Dspring.profiles.active=production'"
-                    }
+            withEnv([
+                    "COMMIT=${getCommit()}",
+                    "BUILD_NO=${getBuildNumber()}",
+                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${dbURL}:5432/postgres",
+                    "TC_AUTH_TESTS_DATABASE_USERNAME=postgres",
+                    "TC_AUTH_TESTS_DATABASE_PASSWORD=admin123"
+            ]) {
+                withMaven(maven: "Maven") {
+                    sh "mvn test -DargLine='-Dspring.profiles.active=production'"
                 }
             }
         } finally {
