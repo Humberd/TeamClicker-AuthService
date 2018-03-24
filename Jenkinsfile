@@ -89,7 +89,7 @@ node {
                     """, returnStdout: true
             }
         } finally {
-            sh "docker rmi ${imageTag}"
+//            sh "docker rmi ${imageTag}"
         }
     }
 
