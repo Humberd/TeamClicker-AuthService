@@ -12,6 +12,7 @@ class CryptoKeysExtractor {
         val keyBytes = try {
             File(path).readBytes()
         } catch (e: Exception) {
+            println(System.getenv("TC_JWT_PRIVATE_KEY"))
             System.getenv("TC_JWT_PRIVATE_KEY").toByteArray()
         }
         val keySpec = PKCS8EncodedKeySpec(keyBytes)
@@ -22,6 +23,7 @@ class CryptoKeysExtractor {
         val keyBytes = try {
             File(path).readBytes()
         } catch (e: Exception) {
+            println(System.getenv("TC_JWT_PUBLIC_KEY"))
             System.getenv("TC_JWT_PUBLIC_KEY").toByteArray()
         }
         val keySpec = X509EncodedKeySpec(keyBytes)
