@@ -22,14 +22,8 @@ node {
 
     stage("Build") {
         //noinspection GroovyAssignabilityCheck
-        withCredentials([file(credentialsId: 'TC_JWT_PRIVATE_KEY', variable: 'TC_JWT_PRIVATE_KEY'),
-                         file(credentialsId: 'TC_JWT_PUBLIC_KEY', variable: 'TC_JWT_PUBLIC_KEY')]) {
-            sh 'echo dupa'
-            sh 'echo $TC_JWT_PRIVATE_KEY'
-            sh 'ls -al'
-            withMaven(maven: "Maven") {
-                sh "mvn clean install -DskipTests=true"
-            }
+        withMaven(maven: "Maven") {
+            sh "mvn clean install -DskipTests=true"
         }
     }
 
@@ -43,15 +37,18 @@ node {
         containerName = "tc-auth-service-tests-db"
         dbURL = "tc-auth-service-tests-db"
         try {
-            withEnv([
-                    "COMMIT=${getCommit()}",
-                    "BUILD_NO=${getBuildNumber()}",
-                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${dbURL}:5432/postgres",
-                    "TC_AUTH_TESTS_DATABASE_USERNAME=postgres",
-                    "TC_AUTH_TESTS_DATABASE_PASSWORD=admin123"
-            ]) {
-                withMaven(maven: "Maven") {
-                    sh "mvn test -DargLine='-Dspring.profiles.active=production'"
+            withCredentials([file(credentialsId: 'TC_JWT_PRIVATE_KEY', variable: 'TC_JWT_PRIVATE_KEY'),
+                             file(credentialsId: 'TC_JWT_PUBLIC_KEY', variable: 'TC_JWT_PUBLIC_KEY')]) {
+                withEnv([
+                        "COMMIT=${getCommit()}",
+                        "BUILD_NO=${getBuildNumber()}",
+                        "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${dbURL}:5432/postgres",
+                        "TC_AUTH_TESTS_DATABASE_USERNAME=postgres",
+                        "TC_AUTH_TESTS_DATABASE_PASSWORD=admin123"
+                ]) {
+                    withMaven(maven: "Maven") {
+                        sh "mvn test -DargLine='-Dspring.profiles.active=production'"
+                    }
                 }
             }
         } finally {

@@ -9,14 +9,22 @@ import java.security.spec.X509EncodedKeySpec
 
 class CryptoKeysExtractor {
     fun getPrivateRSAKey(path: String): PrivateKey {
-        val fileContent = File(path).readBytes()
-        val keySpec = PKCS8EncodedKeySpec(fileContent)
+        val keyBytes = try {
+            File(path).readBytes()
+        } catch (e: Exception) {
+            System.getenv("TC_JWT_PRIVATE_KEY").toByteArray()
+        }
+        val keySpec = PKCS8EncodedKeySpec(keyBytes)
         return KeyFactory.getInstance("RSA").generatePrivate(keySpec)
     }
 
     fun getPublicRSAKey(path: String): PublicKey {
-        val fileContent = File(path).readBytes()
-        val keySpec = X509EncodedKeySpec(fileContent)
+        val keyBytes = try {
+            File(path).readBytes()
+        } catch (e: Exception) {
+            System.getenv("TC_JWT_PUBLIC_KEY").toByteArray()
+        }
+        val keySpec = X509EncodedKeySpec(keyBytes)
         return KeyFactory.getInstance("RSA").generatePublic(keySpec)
     }
 }
