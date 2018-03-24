@@ -22,8 +22,15 @@ node {
 
     stage("Build") {
         //noinspection GroovyAssignabilityCheck
-        withMaven(maven: "Maven") {
-            sh "mvn clean install -DskipTests=true"
+        withCredentials([file(credentialsId: 'TC_JWT_PRIVATE_KEY', variable: 'TC_JWT_PRIVATE_KEY'),
+                         file(credentialsId: 'TC_JWT_PUBLIC_KEY', variable: 'TC_JWT_PUBLIC_KEY')]) {
+            sh 'echo dupa'
+            sh 'echo TC_JWT_PRIVATE_KEY'
+            sh 'use $TC_JWT_PRIVATE_KEY'
+            sh 'ls -al'
+            withMaven(maven: "Maven") {
+                sh "mvn clean install -DskipTests=true"
+            }
         }
     }
 
