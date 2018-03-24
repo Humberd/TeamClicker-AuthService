@@ -1,7 +1,6 @@
 package com.teamclicker.authservice.security
 
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
-import com.teamclicker.authservice.Constants.JWT_PUBLIC_KEY
 import com.teamclicker.authservice.Constants.JWT_TOKEN_PREFIX
 import com.teamclicker.authservice.mappers.ClaimsToJWTDataMapper
 import io.jsonwebtoken.Jwts
@@ -14,8 +13,11 @@ import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class JWTAuthorizationFilter(authManager: AuthenticationManager,
-                             private val claimsToJWTDataMapper: ClaimsToJWTDataMapper) : BasicAuthenticationFilter(authManager) {
+class JWTAuthorizationFilter(
+        authManager: AuthenticationManager,
+        private val claimsToJWTDataMapper: ClaimsToJWTDataMapper,
+        private val cryptoKeys: CryptoKeys
+) : BasicAuthenticationFilter(authManager) {
     override fun doFilterInternal(req: HttpServletRequest,
                                   res: HttpServletResponse,
                                   chain: FilterChain) {
@@ -36,7 +38,7 @@ class JWTAuthorizationFilter(authManager: AuthenticationManager,
 
     private fun getAuthentication(jwtToken: String): Authentication {
         val jwtClaims = Jwts.parser()
-                .setSigningKey(JWT_PUBLIC_KEY)
+                .setSigningKey(cryptoKeys.JWT_PUBLIC_KEY)
                 .parseClaimsJws(jwtToken)
                 .getBody()
 

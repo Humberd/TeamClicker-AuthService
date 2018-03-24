@@ -2,7 +2,6 @@ package com.teamclicker.authservice.security
 
 import com.teamclicker.authservice.Constants.JWT_EXPIRATION_TIME
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
-import com.teamclicker.authservice.Constants.JWT_PRIVATE_KEY
 import com.teamclicker.authservice.Constants.JWT_TOKEN_PREFIX
 import com.teamclicker.authservice.dao.UserAccountDAO
 import com.teamclicker.authservice.mappers.JWTDataToClaimsMapper
@@ -15,7 +14,8 @@ import java.util.*
 
 @Service
 class JWTHelper(
-        private val jwtDataToClaimsMapper: JWTDataToClaimsMapper
+        private val jwtDataToClaimsMapper: JWTDataToClaimsMapper,
+        private val cryptoKeys: CryptoKeys
 ) {
     fun convertUserAccountToJwtString(userAccount: UserAccountDAO, authenticationMethod: AuthenticationMethod): String {
         val customClaims = jwtDataToClaimsMapper.parse(JWTData(
@@ -29,7 +29,7 @@ class JWTHelper(
                 .setId(UUID.randomUUID().toString())
                 .setExpiration(Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME))
                 .setIssuedAt(Date())
-                .signWith(SignatureAlgorithm.RS512, JWT_PRIVATE_KEY)
+                .signWith(SignatureAlgorithm.RS512, cryptoKeys.JWT_PRIVATE_KEY)
                 .compact()
     }
 
