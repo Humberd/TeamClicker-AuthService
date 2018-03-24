@@ -40,7 +40,6 @@ node {
         sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
         sh "docker-compose -f ${dockerComposeFile} up -d"
 
-        containerName = "tc-auth-service-tests-db"
         dbURL = "tc-auth-service-tests-db"
         try {
             withEnv([
@@ -88,11 +87,4 @@ def getCommit() {
 
 def getBuildNumber() {
     return env.BUILD_NUMBER
-}
-
-def getContainerInternalIp(containerName) {
-    return sh(
-            script: "docker exec ${containerName} bash -c \"ifconfig eth0 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1\"",
-            returnStdout: true
-    ).trim()
 }
