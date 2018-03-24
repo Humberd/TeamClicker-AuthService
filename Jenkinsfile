@@ -41,29 +41,29 @@ node {
         }
     }
 
-    stage("Test") {
-        //noinspection GroovyAssignabilityCheck
-        dockerComposeFile = "production.testing.docker-compose.yml"
-
-        sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
-        sh "docker-compose -f ${dockerComposeFile} up -d"
-
-        try {
-            withEnv([
-                    "COMMIT=${getCommit()}",
-                    "BUILD_NO=${getBuildNumber()}",
-                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${testDatabase}",
-                    "TC_AUTH_TESTS_DATABASE_USERNAME=${testDatabaseUsername}",
-                    "TC_AUTH_TESTS_DATABASE_PASSWORD=${testDatabasePassword}"
-            ]) {
-                withMaven(maven: "Maven") {
-                    sh "mvn test -DargLine='-Dspring.profiles.active=production'"
-                }
-            }
-        } finally {
-            sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
-        }
-    }
+//    stage("Test") {
+//        //noinspection GroovyAssignabilityCheck
+//        dockerComposeFile = "production.testing.docker-compose.yml"
+//
+//        sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
+//        sh "docker-compose -f ${dockerComposeFile} up -d"
+//
+//        try {
+//            withEnv([
+//                    "COMMIT=${getCommit()}",
+//                    "BUILD_NO=${getBuildNumber()}",
+//                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${testDatabase}",
+//                    "TC_AUTH_TESTS_DATABASE_USERNAME=${testDatabaseUsername}",
+//                    "TC_AUTH_TESTS_DATABASE_PASSWORD=${testDatabasePassword}"
+//            ]) {
+//                withMaven(maven: "Maven") {
+//                    sh "mvn test -DargLine='-Dspring.profiles.active=production'"
+//                }
+//            }
+//        } finally {
+//            sh "docker-compose -f ${dockerComposeFile} down --rmi all --remove-orphans"
+//        }
+//    }
 
     stage("Deploy") {
         dockerfile = "production.deploy.Dockerfile"
@@ -80,6 +80,10 @@ node {
             withCredentials([file(credentialsId: 'TeamClickerAuthServiceDeployer', variable: 'TeamClickerAuthServiceDeployer')]) {
 
                 def gCloudSdkCommands = """
+                    cd tmp;
+                    echo '${getFileContent('TeamClickerAuthServiceDeployer')}' > credentials.json;
+                    gcloud auth activate-service-account --key-file=credentials.json;
+
                     gcloud docker -- push ${imageTag}
 
                     exit
@@ -108,9 +112,9 @@ def getBuildNumber() {
     return env.BUILD_NUMBER
 }
 
-def getSecretText(String secretId) {
-    withCredentials([string(credentialsId: secretId, variable: secretId)]) {
-        def value = sh script: "echo ${secretId}", returnStdout: true
-        return value
-    }
+def getFileContent(fileName) {
+    return sh(
+            script: fileName,
+            returnStdout: true
+    )
 }
