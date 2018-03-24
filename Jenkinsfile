@@ -107,7 +107,7 @@ def getBuildNumber() {
     return env.BUILD_NUMBER
 }
 def getSecretText(String secretId) {
-    withCredentials([plainText(credentialsId: secretId, variable: secretId)]) {
+    withCredentials([string(credentialsId: secretId, variable: secretId)]) {
         def value = sh script: "echo ${credentialsId}", returnStdout: true
         return value
     }
