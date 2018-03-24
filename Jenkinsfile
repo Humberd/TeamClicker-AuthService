@@ -114,7 +114,7 @@ def getBuildNumber() {
 
 def getFileContent(fileName) {
     return sh(
-            script: fileName,
+            script: '\$' + fileName,
             returnStdout: true
     )
 }
