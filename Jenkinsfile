@@ -32,8 +32,6 @@ node {
     }
 
     stage("Build") {
-        sh "echo foobar"
-        sh "printenv"
         //noinspection GroovyAssignabilityCheck
         withCredentials([file(credentialsId: 'TC_JWT_PRIVATE_KEY', variable: 'TC_JWT_PRIVATE_KEY'),
                          file(credentialsId: 'TC_JWT_PUBLIC_KEY', variable: 'TC_JWT_PUBLIC_KEY')]) {
@@ -109,7 +107,7 @@ def getCommitHash() {
 }
 
 def getBuildNumber() {
-    return env.BUILD_NO
+    return env.BUILD_NUMBER
 }
 
 def getFileContent(fileName) {
