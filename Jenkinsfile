@@ -86,7 +86,7 @@ node {
 
 //                sh "replica_spec=\$(kubectl get ${deploymentName}/${containerName} -o jsonpath='{.spec.replicas}')"
 //                sh "kubectl scale --replicas=0 ${deploymentName} ${containerName}"
-                sh "kubectl set image ${deploymentName}/${containerName} app-container=${imageTag}"
+                sh "kubectl set image deployment/${deploymentName} ${appName}=${imageTag}"
 //                sh "kubectl scale --replicas=\$replica_spec ${deploymentName} ${containerName}"
             }
         } finally {
