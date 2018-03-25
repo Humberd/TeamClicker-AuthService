@@ -90,7 +90,8 @@ node {
 //                sh "kubectl scale --replicas=\$replica_spec ${deploymentName} ${containerName}"
             }
         } finally {
-//            sh "docker rmi ${imageTag}"
+            sh "docker rmi ${imageTag}"
+            sh "gcloud auth revoke"
         }
     }
 
