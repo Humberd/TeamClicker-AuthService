@@ -6,6 +6,9 @@ node {
     def testDatabase = "tc-auth-service-tests-db:5432/auth-service-tests"
     def testDatabaseUsername = "postgres"
     def testDatabasePassword = "admin123"
+    /* PROD */
+    def deploymentName = "auth-service"
+    def containerName = "app"
 
     /**
      * Making sure, that there are only at most 2 artifacts stored on a server,
@@ -73,7 +76,6 @@ node {
                 docker build \
                     -f ${dockerfile} \
                     -t ${imageTag}
-                    -t latest \
                     --build-arg COMMIT_HASH=${getCommitHash()} \
                     --build-arg BUILD_NUMBER=${getBuildNumber()} . \
                     """, returnStdout: true
@@ -81,6 +83,11 @@ node {
             withCredentials([file(credentialsId: 'TeamClickerAuthServiceDeployer', variable: 'TeamClickerAuthServiceDeployer')]) {
                 sh "gcloud auth activate-service-account --key-file=\$TeamClickerAuthServiceDeployer"
                 sh "gcloud docker -- push ${imageTag}"
+
+//                sh "replica_spec=\$(kubectl get ${deploymentName}/${containerName} -o jsonpath='{.spec.replicas}')"
+//                sh "kubectl scale --replicas=0 ${deploymentName} ${containerName}"
+                sh "kubectl set image ${deploymentName}/${containerName} app-container=${imageTag}"
+//                sh "kubectl scale --replicas=\$replica_spec ${deploymentName} ${containerName}"
             }
         } finally {
 //            sh "docker rmi ${imageTag}"
