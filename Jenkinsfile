@@ -83,7 +83,7 @@ node {
             withCredentials([file(credentialsId: 'TeamClickerDeployer', variable: 'TeamClickerDeployer')]) {
                 sh "gcloud auth activate-service-account --key-file=\$TeamClickerDeployer"
                 sh "gcloud docker -- push ${imageTag}"
-
+                sh "gcloud container clusters get-credentials test-cluster --zone europe-west1-b --project team-clicker"
 //                sh "replica_spec=\$(kubectl get ${deploymentName}/${containerName} -o jsonpath='{.spec.replicas}')"
 //                sh "kubectl scale --replicas=0 ${deploymentName} ${containerName}"
                 sh "kubectl set image deployment/${deploymentName} ${containerName}=${imageTag}"
