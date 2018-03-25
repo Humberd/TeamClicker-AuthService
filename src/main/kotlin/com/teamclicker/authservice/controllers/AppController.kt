@@ -49,7 +49,7 @@ Returns a status of the deployed app including:
     fun load(): String {
         val time = System.currentTimeMillis()
         var finalString = ""
-        val range = (Math.random() * 1000).toInt()
+        val range = (Math.random() * 10000).toInt()
         for(i in 0..range) {
             finalString += i
         }
