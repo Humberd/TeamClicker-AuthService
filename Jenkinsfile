@@ -80,8 +80,8 @@ node {
                     --build-arg BUILD_NUMBER=${getBuildNumber()} . \
                     """
 
-            withCredentials([file(credentialsId: 'TeamClickerAuthServiceDeployer2', variable: 'TeamClickerAuthServiceDeployer2')]) {
-                sh "gcloud auth activate-service-account --key-file=\$TeamClickerAuthServiceDeployer2"
+            withCredentials([file(credentialsId: 'TeamClickerDeployer', variable: 'TeamClickerDeployer')]) {
+                sh "gcloud auth activate-service-account --key-file=\$TeamClickerDeployer"
                 sh "gcloud docker -- push ${imageTag}"
 
 //                sh "replica_spec=\$(kubectl get ${deploymentName}/${containerName} -o jsonpath='{.spec.replicas}')"
