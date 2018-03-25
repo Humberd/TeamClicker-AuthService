@@ -107,7 +107,7 @@ def getCommitHash() {
 }
 
 def getBuildNumber() {
-    return env.BUILD_NUMBER
+    return env.BUILD_NO
 }
 
 def getFileContent(fileName) {
