@@ -44,4 +44,17 @@ Returns a status of the deployed app including:
     fun ping(): String {
         return "pong"
     }
+
+    @GetMapping("/load")
+    fun load(): Long {
+        val time = System.currentTimeMillis()
+        var foo = 0L
+        for(i in 1..10000000) {
+            foo += i
+        }
+        val time2= System.currentTimeMillis() - time
+        println(time2)
+
+        return time2
+    }
 }
