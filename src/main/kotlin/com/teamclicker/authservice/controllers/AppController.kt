@@ -46,15 +46,16 @@ Returns a status of the deployed app including:
     }
 
     @GetMapping("/load")
-    fun load(): Long {
+    fun load(): String {
         val time = System.currentTimeMillis()
-        var foo = 0L
-        for(i in 1..10000000) {
-            foo += i
+        var finalString = ""
+        val range = (Math.random() * 1000).toInt()
+        for(i in 0..range) {
+            finalString += i
         }
         val time2= System.currentTimeMillis() - time
         println(time2)
 
-        return time2
+        return finalString +" ////////////  "+ time2
     }
 }
