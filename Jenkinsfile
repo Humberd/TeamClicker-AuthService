@@ -78,7 +78,7 @@ node {
                     -t ${imageTag} \
                     --build-arg COMMIT_HASH=${getCommitHash()} \
                     --build-arg BUILD_NUMBER=${getBuildNumber()} . \
-                    """, returnStdout: true
+                    """
 
             withCredentials([file(credentialsId: 'TeamClickerAuthServiceDeployer', variable: 'TeamClickerAuthServiceDeployer')]) {
                 sh "gcloud auth activate-service-account --key-file=\$TeamClickerAuthServiceDeployer"
