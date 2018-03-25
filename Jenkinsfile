@@ -75,7 +75,7 @@ node {
             sh script: """
                 docker build \
                     -f ${dockerfile} \
-                    -t ${imageTag}
+                    -t ${imageTag} \
                     --build-arg COMMIT_HASH=${getCommitHash()} \
                     --build-arg BUILD_NUMBER=${getBuildNumber()} . \
                     """, returnStdout: true
