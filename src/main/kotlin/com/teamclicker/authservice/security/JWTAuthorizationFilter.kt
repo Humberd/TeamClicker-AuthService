@@ -14,13 +14,15 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 class JWTAuthorizationFilter(
-        authManager: AuthenticationManager,
-        private val claimsToJWTDataMapper: ClaimsToJWTDataMapper,
-        private val cryptoKeys: CryptoKeys
+    authManager: AuthenticationManager,
+    private val claimsToJWTDataMapper: ClaimsToJWTDataMapper,
+    private val cryptoKeys: CryptoKeys
 ) : BasicAuthenticationFilter(authManager) {
-    override fun doFilterInternal(req: HttpServletRequest,
-                                  res: HttpServletResponse,
-                                  chain: FilterChain) {
+    override fun doFilterInternal(
+        req: HttpServletRequest,
+        res: HttpServletResponse,
+        chain: FilterChain
+    ) {
         val header = req.getHeader(JWT_HEADER_NAME)
 
         /* When header is null or doesn't start with a required prefix*/
@@ -38,9 +40,9 @@ class JWTAuthorizationFilter(
 
     private fun getAuthentication(jwtToken: String): Authentication {
         val jwtClaims = Jwts.parser()
-                .setSigningKey(cryptoKeys.JWT_PUBLIC_KEY)
-                .parseClaimsJws(jwtToken)
-                .getBody()
+            .setSigningKey(cryptoKeys.JWT_PUBLIC_KEY)
+            .parseClaimsJws(jwtToken)
+            .getBody()
 
         val jwtData = claimsToJWTDataMapper.parse(jwtClaims)
 

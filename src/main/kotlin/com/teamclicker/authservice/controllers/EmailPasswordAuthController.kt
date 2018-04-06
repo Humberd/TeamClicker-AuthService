@@ -8,7 +8,6 @@ import com.teamclicker.authservice.dto.EmailPasswordChangePasswordDTO
 import com.teamclicker.authservice.dto.EmailPasswordSignInDTO
 import com.teamclicker.authservice.dto.EmailPasswordSignUpDTO
 import com.teamclicker.authservice.exceptions.EntityAlreadyExistsException
-import com.teamclicker.authservice.exceptions.InternalServerErrorException
 import com.teamclicker.authservice.exceptions.InvalidCredentialsException
 import com.teamclicker.authservice.exceptions.InvalidRequestBodyException
 import com.teamclicker.authservice.repositories.UserAccountRepository

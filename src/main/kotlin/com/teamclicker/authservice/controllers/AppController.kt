@@ -14,15 +14,19 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/app")
 class AppController {
 
-    @ApiOperation(value = "Status of the deployed app", notes = """
+    @ApiOperation(
+        value = "Status of the deployed app", notes = """
 Returns a status of the deployed app including:
  - Docker container id
  - Jenkins build number
  - Last git commit id
-         """)
-    @ApiResponses(value = [
-        ApiResponse(code = 200, message = "Ok")
-    ])
+         """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(code = 200, message = "Ok")
+        ]
+    )
     @PreAuthorize("permitAll()")
     @GetMapping("/status", produces = ["text/html"])
     fun getStatus(): String {
@@ -36,9 +40,11 @@ Returns a status of the deployed app including:
     }
 
     @ApiOperation(value = "Pings the app")
-    @ApiResponses(value = [
-        ApiResponse(code = 200, message = "Ok")
-    ])
+    @ApiResponses(
+        value = [
+            ApiResponse(code = 200, message = "Ok")
+        ]
+    )
     @PreAuthorize("permitAll()")
     @GetMapping("/ping", produces = ["text/plain"])
     fun ping(): String {
@@ -50,12 +56,12 @@ Returns a status of the deployed app including:
         val time = System.currentTimeMillis()
         var finalString = ""
         val range = (Math.random() * 10000).toInt()
-        for(i in 0..range) {
+        for (i in 0..range) {
             finalString += i
         }
-        val time2= System.currentTimeMillis() - time
+        val time2 = System.currentTimeMillis() - time
         println(time2)
 
-        return finalString +" ////////////  "+ time2
+        return finalString + " ////////////  " + time2
     }
 }

@@ -18,15 +18,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-class WebSecurity(private val userDetailsService: UserDetailsService,
-                  private val bCryptPasswordEncoder: BCryptPasswordEncoder,
-                  private val claimsToJWTDataMapper: ClaimsToJWTDataMapper,
-                  private val cryptoKeys: CryptoKeys) : WebSecurityConfigurerAdapter() {
+class WebSecurity(
+    private val userDetailsService: UserDetailsService,
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder,
+    private val claimsToJWTDataMapper: ClaimsToJWTDataMapper,
+    private val cryptoKeys: CryptoKeys
+) : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity) {
         http.cors().and().csrf().disable()
-                .addFilter(JWTAuthorizationFilter(authenticationManager(), claimsToJWTDataMapper, cryptoKeys))
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .addFilter(JWTAuthorizationFilter(authenticationManager(), claimsToJWTDataMapper, cryptoKeys))
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
     }
 
     public override fun configure(auth: AuthenticationManagerBuilder?) {
@@ -37,16 +39,16 @@ class WebSecurity(private val userDetailsService: UserDetailsService,
     fun corsConfigurationSource(): CorsConfigurationSource {
         val source = UrlBasedCorsConfigurationSource()
         val corsConfig = CorsConfiguration()
-                .applyPermitDefaultValues().apply {
-                    addAllowedHeader(JWT_HEADER_NAME)
-                    addExposedHeader(JWT_HEADER_NAME)
-                    addAllowedMethod(HttpMethod.GET)
-                    addAllowedMethod(HttpMethod.POST)
-                    addAllowedMethod(HttpMethod.PUT)
-                    addAllowedMethod(HttpMethod.DELETE)
-                    addAllowedMethod(HttpMethod.HEAD)
-                    addAllowedMethod(HttpMethod.OPTIONS)
-                }
+            .applyPermitDefaultValues().apply {
+                addAllowedHeader(JWT_HEADER_NAME)
+                addExposedHeader(JWT_HEADER_NAME)
+                addAllowedMethod(HttpMethod.GET)
+                addAllowedMethod(HttpMethod.POST)
+                addAllowedMethod(HttpMethod.PUT)
+                addAllowedMethod(HttpMethod.DELETE)
+                addAllowedMethod(HttpMethod.HEAD)
+                addAllowedMethod(HttpMethod.OPTIONS)
+            }
 
         source.registerCorsConfiguration("/**", corsConfig)
         return source

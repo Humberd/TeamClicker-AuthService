@@ -30,9 +30,10 @@ class UserAccountDAO {
     var facebookAuth: FacebookAuthDAO? = null
 
     @ManyToMany()
-    @JoinTable(name = "userAccountUserRole",
-            joinColumns = [JoinColumn(name = "userAccountId")],
-            inverseJoinColumns = [JoinColumn(name = "userRoleId")]
+    @JoinTable(
+        name = "userAccountUserRole",
+        joinColumns = [JoinColumn(name = "userAccountId")],
+        inverseJoinColumns = [JoinColumn(name = "userRoleId")]
     )
     var roles: List<UserRoleDAO> = emptyList()
 

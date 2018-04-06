@@ -2,7 +2,6 @@ package com.teamclicker.authservice.security
 
 import com.teamclicker.authservice.Constants.JWT_PRIVATE_KEY_NAME
 import com.teamclicker.authservice.Constants.JWT_PUBLIC_KEY_NAME
-import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Service
 import java.security.KeyFactory

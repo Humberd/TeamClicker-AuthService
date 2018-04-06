@@ -5,8 +5,8 @@ import com.teamclicker.authservice.dto.EmailPasswordSignInDTO
 import com.teamclicker.authservice.dto.EmailPasswordSignUpDTO
 
 data class UserAccountMock(
-        var email: String?,
-        var password: String?
+    var email: String?,
+    var password: String?
 ) {
     fun toEmailPasswordSignUp(): EmailPasswordSignUpDTO {
         return EmailPasswordSignUpDTO().also {

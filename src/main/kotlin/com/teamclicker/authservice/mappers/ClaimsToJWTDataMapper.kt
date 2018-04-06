@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service
 class ClaimsToJWTDataMapper : AbstractMapper<Claims, JWTData>() {
     override fun parse(from: Claims): JWTData {
         return JWTData(
-                accountId = getAccountId(from),
-                authenticationMethod = from.get("authenticationMethod", String::class.java)
-                        .let { AuthenticationMethod.valueOf(it) },
-                roles = from.get("roles", userRolesListType)
-                        .map { it }
+            accountId = getAccountId(from),
+            authenticationMethod = from.get("authenticationMethod", String::class.java)
+                .let { AuthenticationMethod.valueOf(it) },
+            roles = from.get("roles", userRolesListType)
+                .map { it }
         )
     }
 

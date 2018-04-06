@@ -8,12 +8,14 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserRolesLoader(
-        private val userRoleRepository: UserRoleRepository
+    private val userRoleRepository: UserRoleRepository
 ) : ApplicationRunner {
     override fun run(args: ApplicationArguments?) {
-        userRoleRepository.saveAll(listOf(
+        userRoleRepository.saveAll(
+            listOf(
                 UserRoleDAO("USER"),
                 UserRoleDAO("ADMIN")
-        ))
+            )
+        )
     }
 }

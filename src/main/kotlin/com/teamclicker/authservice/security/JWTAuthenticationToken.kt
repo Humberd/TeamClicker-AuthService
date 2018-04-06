@@ -3,7 +3,7 @@ package com.teamclicker.authservice.security
 import org.springframework.security.authentication.AbstractAuthenticationToken
 
 class JWTAuthenticationToken(
-        val jwtData: JWTData
+    val jwtData: JWTData
 ) : AbstractAuthenticationToken(jwtData.getGrantedAuthorities()) {
 
     init {

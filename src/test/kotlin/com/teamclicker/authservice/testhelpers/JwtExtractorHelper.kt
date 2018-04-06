@@ -11,16 +11,16 @@ import org.springframework.stereotype.Service
 
 @Service
 class JwtExtractorHelper(
-        private val claimsToJWTDataMapper: ClaimsToJWTDataMapper,
-        private val cryptoKeys: CryptoKeys
+    private val claimsToJWTDataMapper: ClaimsToJWTDataMapper,
+    private val cryptoKeys: CryptoKeys
 ) {
     fun getJwtData(response: ResponseEntity<*>): JWTData {
         val token = response.headers.get(JWT_HEADER_NAME)?.get(0)
         val rawToken = token?.replaceFirst(JWT_TOKEN_PREFIX, "")
         val jwtClaims = Jwts.parser()
-                .setSigningKey(cryptoKeys.JWT_PUBLIC_KEY)
-                .parseClaimsJws(rawToken)
-                .getBody()
+            .setSigningKey(cryptoKeys.JWT_PUBLIC_KEY)
+            .parseClaimsJws(rawToken)
+            .getBody()
 
         return claimsToJWTDataMapper.parse(jwtClaims)
     }

@@ -18,18 +18,18 @@ class SwaggerBean {
     @Bean
     fun getDocker(): Docket {
         return Docket(DocumentationType.SWAGGER_2)
-                .useDefaultResponseMessages(false)
-                .apiInfo(DEFAULT_API_INFO)
-                .produces(DEFAULT_PRODUCES)
-                .consumes(DEFAULT_CONSUMES)
+            .useDefaultResponseMessages(false)
+            .apiInfo(DEFAULT_API_INFO)
+            .produces(DEFAULT_PRODUCES)
+            .consumes(DEFAULT_CONSUMES)
 //                .ignoredParameterTypes(UserDAO::class.java)
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
-                .apis(Predicates.not(RequestHandlerSelectors.basePackage("org.springframework.boot")))
-                .apis(Predicates.not(RequestHandlerSelectors.basePackage("org.springframework.cloud")))
-                .apis(Predicates.not(RequestHandlerSelectors.basePackage("org.springframework.data.rest.webmvc")))
-                .build()
+            .select()
+            .apis(RequestHandlerSelectors.any())
+            .paths(PathSelectors.any())
+            .apis(Predicates.not(RequestHandlerSelectors.basePackage("org.springframework.boot")))
+            .apis(Predicates.not(RequestHandlerSelectors.basePackage("org.springframework.cloud")))
+            .apis(Predicates.not(RequestHandlerSelectors.basePackage("org.springframework.data.rest.webmvc")))
+            .build()
     }
 
     companion object {
@@ -39,18 +39,19 @@ class SwaggerBean {
 
         // TODO: change to a proper data
         val DEFAULT_API_INFO = ApiInfo(
-                "Team Clicker Auth Service",
-                "An API Service responsible for authorizing users.",
-                "0.0.1",
+            "Team Clicker Auth Service",
+            "An API Service responsible for authorizing users.",
+            "0.0.1",
+            "admin.com",
+            Contact(
+                "Maciej Sawicki",
                 "admin.com",
-                Contact(
-                        "Maciej Sawicki",
-                        "admin.com",
-                        "admin@admin.com"
-                ),
-                "Apache 2.0",
-                "http://www.apache.org/licenses/LICENSE-2.0",
-                emptyList())
+                "admin@admin.com"
+            ),
+            "Apache 2.0",
+            "http://www.apache.org/licenses/LICENSE-2.0",
+            emptyList()
+        )
 
     }
 }

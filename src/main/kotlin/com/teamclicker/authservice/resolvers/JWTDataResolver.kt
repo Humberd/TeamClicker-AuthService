@@ -2,7 +2,6 @@ package com.teamclicker.authservice.resolvers
 
 import com.teamclicker.authservice.security.JWTAuthenticationToken
 import com.teamclicker.authservice.security.JWTData
-import io.jsonwebtoken.Jws
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
@@ -16,7 +15,12 @@ class JWTDataResolver : HandlerMethodArgumentResolver {
         return parameter.parameterType.isAssignableFrom(JWTData::class.java)
     }
 
-    override fun resolveArgument(parameter: MethodParameter, mavContainer: ModelAndViewContainer?, webRequest: NativeWebRequest, binderFactory: WebDataBinderFactory?): Any? {
+    override fun resolveArgument(
+        parameter: MethodParameter,
+        mavContainer: ModelAndViewContainer?,
+        webRequest: NativeWebRequest,
+        binderFactory: WebDataBinderFactory?
+    ): Any? {
         val userPrincipal = webRequest.userPrincipal as JWTAuthenticationToken
         return userPrincipal.jwtData
     }

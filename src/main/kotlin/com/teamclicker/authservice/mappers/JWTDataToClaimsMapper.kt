@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service
 @Service
 class JWTDataToClaimsMapper : AbstractMapper<JWTData, Claims>() {
     override fun parse(from: JWTData): Claims {
-        return DefaultClaims(mapOf(
+        return DefaultClaims(
+            mapOf(
                 "accountId" to from.accountId,
                 "authenticationMethod" to from.authenticationMethod.name,
                 "roles" to from.roles
-        ))
+            )
+        )
     }
 }

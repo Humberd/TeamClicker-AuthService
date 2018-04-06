@@ -14,23 +14,25 @@ import java.util.*
 
 @Service
 class JWTHelper(
-        private val jwtDataToClaimsMapper: JWTDataToClaimsMapper,
-        private val cryptoKeys: CryptoKeys
+    private val jwtDataToClaimsMapper: JWTDataToClaimsMapper,
+    private val cryptoKeys: CryptoKeys
 ) {
     fun convertUserAccountToJwtString(userAccount: UserAccountDAO, authenticationMethod: AuthenticationMethod): String {
-        val customClaims = jwtDataToClaimsMapper.parse(JWTData(
+        val customClaims = jwtDataToClaimsMapper.parse(
+            JWTData(
                 accountId = userAccount.id!!,
                 roles = userAccount.roles.map { it.id!! },
                 authenticationMethod = authenticationMethod
-        ))
+            )
+        )
 
         return Jwts.builder()
-                .setClaims(customClaims)
-                .setId(UUID.randomUUID().toString())
-                .setExpiration(Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME))
-                .setIssuedAt(Date())
-                .signWith(SignatureAlgorithm.RS512, cryptoKeys.JWT_PRIVATE_KEY)
-                .compact()
+            .setClaims(customClaims)
+            .setId(UUID.randomUUID().toString())
+            .setExpiration(Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME))
+            .setIssuedAt(Date())
+            .signWith(SignatureAlgorithm.RS512, cryptoKeys.JWT_PRIVATE_KEY)
+            .compact()
     }
 
     fun getHeaders(jwtString: String): MultiValueMap<String, String> {

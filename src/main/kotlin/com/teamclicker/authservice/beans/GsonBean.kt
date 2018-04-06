@@ -12,9 +12,9 @@ import java.util.*
 class GsonBean {
     @Bean
     fun gson(): Gson = GsonBuilder()
-            .setPrettyPrinting()
-            .registerTypeAdapter(Date::class.java, DateSerializer())
-            .registerTypeAdapter(Date::class.java, DateDeserializer())
-            .create()
+        .setPrettyPrinting()
+        .registerTypeAdapter(Date::class.java, DateSerializer())
+        .registerTypeAdapter(Date::class.java, DateDeserializer())
+        .create()
 }
 
