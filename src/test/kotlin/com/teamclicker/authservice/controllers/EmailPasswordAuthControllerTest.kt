@@ -3,11 +3,12 @@
 package com.teamclicker.authservice.controllers
 
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
+import com.teamclicker.authservice.dto.EmailPasswordChangePasswordDTO
+import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.testhelpers.AuthHelper
 import com.teamclicker.authservice.testhelpers.AuthHelper.Companion.ALICE
 import com.teamclicker.authservice.testhelpers.AuthHelper.Companion.BOB
 import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
-import com.teamclicker.authservice.repositories.UserAccountRepository
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
@@ -44,12 +45,12 @@ internal class EmailPasswordAuthControllerTest {
         @Test
         fun `should signUp and have a default 'USER' role`() {
             val response = authHelper.signUp()
-                    .with(ALICE)
-                    .expectSuccess()
-                    .also {
-                        assertEquals(HttpStatus.OK, it.statusCode)
-                        assertNotNull(it.headers.get(JWT_HEADER_NAME))
-                    }
+                .with(ALICE)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                }
 
             val jwtData = jwtExtractorHelper.getJwtData(response)
             assertEquals(listOf("USER"), jwtData.roles)
@@ -58,47 +59,104 @@ internal class EmailPasswordAuthControllerTest {
         @Test
         fun `should not signUp when email does not have a valid format`() {
             authHelper.signUp()
-                    .with(ALICE.also { it.email = "notValidEmail" })
-                    .expectError()
-                    .also {
-                        assertEquals(HttpStatus.BAD_REQUEST, it.statusCode)
-                        assertNull(it.headers.get(JWT_HEADER_NAME))
-                        assertEquals(1, it.body?.errors?.size)
-                        assertEquals("email", it.body?.errors?.get(0)?.field)
-                        assertEquals("Email", it.body?.errors?.get(0)?.code)
-                    }
+                .with(ALICE.also { it.email = "notValidEmail" })
+                .expectError()
+                .also {
+                    assertEquals(HttpStatus.BAD_REQUEST, it.statusCode)
+                    assertNull(it.headers.get(JWT_HEADER_NAME))
+                    assertEquals(1, it.body?.errors?.size)
+                    assertEquals("email", it.body?.errors?.get(0)?.field)
+                    assertEquals("Email", it.body?.errors?.get(0)?.code)
+                }
         }
 
         @Test
         fun `should not signUp when password length is smaller than 5`() {
             authHelper.signUp()
-                    .with(ALICE.also { it.password = "1234" })
-                    .expectError()
-                    .also {
-                        assertEquals(HttpStatus.BAD_REQUEST, it.statusCode)
-                        assertNull(it.headers.get(JWT_HEADER_NAME))
-                        assertEquals(1, it.body?.errors?.size)
-                        assertEquals("password", it.body?.errors?.get(0)?.field)
-                        assertEquals("Size", it.body?.errors?.get(0)?.code)
-                    }
+                .with(ALICE.also { it.password = "1234" })
+                .expectError()
+                .also {
+                    assertEquals(HttpStatus.BAD_REQUEST, it.statusCode)
+                    assertNull(it.headers.get(JWT_HEADER_NAME))
+                    assertEquals(1, it.body?.errors?.size)
+                    assertEquals("password", it.body?.errors?.get(0)?.field)
+                    assertEquals("Size", it.body?.errors?.get(0)?.code)
+                }
         }
 
         @Test
         fun `should not signUp when there is already another user with the same email`() {
             authHelper.signUp()
-                    .with(ALICE)
-                    .expectSuccess()
-                    .also {
-                        assertEquals(HttpStatus.OK, it.statusCode)
-                    }
+                .with(ALICE)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
 
             authHelper.signUp()
-                    .with(ALICE.also { it.password = "differentPassword" })
-                    .expectError()
-                    .also {
-                        assertEquals(HttpStatus.GONE, it.statusCode)
-                        assertNull(it.headers.get(JWT_HEADER_NAME))
-                    }
+                .with(ALICE.also { it.password = "differentPassword" })
+                .expectError()
+                .also {
+                    assertEquals(HttpStatus.GONE, it.statusCode)
+                    assertNull(it.headers.get(JWT_HEADER_NAME))
+                }
+        }
+    }
+
+    @Nested
+    inner class ChangePassword {
+        @BeforeEach
+        fun setUp() {
+            userAccountRepository.deleteAll()
+        }
+
+        @Test
+        fun `should changePassword`() {
+            val body = EmailPasswordChangePasswordDTO().also {
+                it.oldPassword = ALICE.password
+                it.newPassword = "newAlicePassword"
+            }
+            authHelper.changePassword()
+                .with(ALICE)
+                .sending(body)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertEquals(null, it.body)
+                }
+
+            authHelper.signIn()
+                .with(ALICE.copy(password = "newAlicePassword"))
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not changePassword when new password is the same as the old one`() {
+            val body = EmailPasswordChangePasswordDTO().also {
+                it.oldPassword = ALICE.password
+                it.newPassword = ALICE.password
+            }
+            authHelper.changePassword()
+                .with(ALICE)
+                .sending(body)
+                .expectError().also {
+                    assertEquals(HttpStatus.BAD_REQUEST, it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not changePassword when old password is invalid`() {
+            val body = EmailPasswordChangePasswordDTO().also {
+                it.oldPassword = "invalidPassword"
+                it.newPassword = "newAlicePassword"
+            }
+            authHelper.changePassword()
+                .with(ALICE)
+                .sending(body)
+                .expectError().also {
+                    assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
+                }
         }
     }
 
@@ -112,35 +170,35 @@ internal class EmailPasswordAuthControllerTest {
         @Test
         fun `should signIn`() {
             authHelper.signIn()
-                    .with(ALICE)
-                    .expectSuccess()
-                    .also {
-                        assertEquals(HttpStatus.OK, it.statusCode)
-                        assertNotNull(it.headers.get(JWT_HEADER_NAME))
-                    }
+                .with(ALICE)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                }
         }
 
         @Test
         fun `should return different tokens for different users`() {
             val firstJwt = authHelper.signIn()
-                    .with(ALICE)
-                    .expectSuccess()
-                    .also {
-                        assertEquals(HttpStatus.OK, it.statusCode)
-                        assertNotNull(it.headers.get(JWT_HEADER_NAME))
-                    }.let {
-                        it.headers.get(JWT_HEADER_NAME)?.first()
-                    }
+                .with(ALICE)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                }.let {
+                    it.headers.get(JWT_HEADER_NAME)?.first()
+                }
 
             val secondJwt = authHelper.signIn()
-                    .with(BOB)
-                    .expectSuccess()
-                    .also {
-                        assertEquals(HttpStatus.OK, it.statusCode)
-                        assertNotNull(it.headers.get(JWT_HEADER_NAME))
-                    }.let {
-                        it.headers.get(JWT_HEADER_NAME)?.first()
-                    }
+                .with(BOB)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                }.let {
+                    it.headers.get(JWT_HEADER_NAME)?.first()
+                }
 
             assertNotEquals(firstJwt, secondJwt)
         }
@@ -148,24 +206,24 @@ internal class EmailPasswordAuthControllerTest {
         @Test
         fun `should return different tokens for the same user`() {
             val firstJwt = authHelper.signIn()
-                    .with(ALICE)
-                    .expectSuccess()
-                    .also {
-                        assertEquals(HttpStatus.OK, it.statusCode)
-                        assertNotNull(it.headers.get(JWT_HEADER_NAME))
-                    }.let {
-                        it.headers.get(JWT_HEADER_NAME)?.first()
-                    }
+                .with(ALICE)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                }.let {
+                    it.headers.get(JWT_HEADER_NAME)?.first()
+                }
 
             val secondJwt = authHelper.signIn()
-                    .with(ALICE)
-                    .expectSuccess()
-                    .also {
-                        assertEquals(HttpStatus.OK, it.statusCode)
-                        assertNotNull(it.headers.get(JWT_HEADER_NAME))
-                    }.let {
-                        it.headers.get(JWT_HEADER_NAME)?.first()
-                    }
+                .with(ALICE)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                }.let {
+                    it.headers.get(JWT_HEADER_NAME)?.first()
+                }
 
             assertNotEquals(firstJwt, secondJwt)
         }
@@ -173,38 +231,38 @@ internal class EmailPasswordAuthControllerTest {
         @Test
         fun `should not signIn when providing invalid password for existing user`() {
             authHelper.signUp()
-                    .with(ALICE)
-                    .expectSuccess()
-                    .also {
-                        assertEquals(HttpStatus.OK, it.statusCode)
-                    }
+                .with(ALICE)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
 
             authHelper.signIn()
-                    .with(ALICE.also { it.password = "differentPassword123" })
-                    .expectError()
-                    .also {
-                        assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
-                    }
+                .with(ALICE.also { it.password = "differentPassword123" })
+                .expectError()
+                .also {
+                    assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
+                }
         }
 
         @Test
         fun `should not signIn when providing credential fornot existing user`() {
             authHelper.signUp()
-                    .with(ALICE)
-                    .expectSuccess()
-                    .also {
-                        assertEquals(HttpStatus.OK, it.statusCode)
-                    }
+                .with(ALICE)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
 
             authHelper.signIn()
-                    .with(ALICE.also {
-                        it.email = "differentMail.mail.com"
-                        it.password = "differentPassword123"
-                    })
-                    .expectError()
-                    .also {
-                        assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
-                    }
+                .with(ALICE.also {
+                    it.email = "differentMail.mail.com"
+                    it.password = "differentPassword123"
+                })
+                .expectError()
+                .also {
+                    assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
+                }
         }
     }
 }
