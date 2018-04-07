@@ -5,8 +5,7 @@ import com.teamclicker.authservice.dao.AuthenticationMethod
 data class JWTDataTestWrapper(
     val accountId: Long,
     val authenticationMethod: AuthenticationMethod,
-    val roles: List<String>,
+    val roles: Set<String>,
     val token: String
-) {
-}
+)
 

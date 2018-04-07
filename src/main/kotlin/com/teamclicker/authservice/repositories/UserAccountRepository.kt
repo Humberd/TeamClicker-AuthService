@@ -10,30 +10,27 @@ import java.util.*
 
 @Repository
 interface UserAccountRepository : JpaRepository<UserAccountDAO, Long> {
-    @Language("JPAQL")
     @Query(
         """
-        select user
-        from UserAccountDAO as user
-        where user.emailPasswordAuth.emailLc = :emailLc
-        and user.deletion is null
+            select user
+            from UserAccountDAO as user
+            where user.emailPasswordAuth.emailLc = :emailLc
+            and user.deletion is null
         """
     )
     fun findByEmail(@Param("emailLc") emailLc: String): Optional<UserAccountDAO>
 
     // https://stackoverflow.com/a/12052390/4256929
-    @Language("JPAQL")
     @Query(
         """
-        select case when (count (user) > 0) then true else false end
-        from UserAccountDAO as user
-        where user.emailPasswordAuth.emailLc = :emailLc
-        and user.deletion is null
+            select case when (count (user) > 0) then true else false end
+            from UserAccountDAO as user
+            where user.emailPasswordAuth.emailLc = :emailLc
+            and user.deletion is null
         """
     )
     fun existsByEmail(@Param("emailLc") emailLc: String): Boolean
 
-    @Language("JPAQL")
     @Query(
         """
             select user

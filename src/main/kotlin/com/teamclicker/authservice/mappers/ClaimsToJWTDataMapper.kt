@@ -13,8 +13,7 @@ class ClaimsToJWTDataMapper : AbstractMapper<Claims, JWTData>() {
             accountId = getAccountId(from),
             authenticationMethod = from.get("authenticationMethod", String::class.java)
                 .let { AuthenticationMethod.valueOf(it) },
-            roles = from.get("roles", userRolesListType)
-                .map { it }
+            roles = from.get("roles", userRolesListType).toSet()
         )
     }
 

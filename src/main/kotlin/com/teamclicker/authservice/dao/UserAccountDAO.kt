@@ -35,7 +35,7 @@ class UserAccountDAO {
         joinColumns = [JoinColumn(name = "userAccountId")],
         inverseJoinColumns = [JoinColumn(name = "userRoleId")]
     )
-    var roles: List<UserRoleDAO> = emptyList()
+    var roles: Set<UserRoleDAO> = emptySet()
 
     @PrePersist
     protected fun onCreate() {

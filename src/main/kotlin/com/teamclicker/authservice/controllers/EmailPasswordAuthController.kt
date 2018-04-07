@@ -65,7 +65,7 @@ class EmailPasswordAuthController(
                 it.email = body.email
                 it.password = bCryptPasswordEncoder.encode(body.password)
             }
-            it.roles = listOf(UserRoleDAO("USER"))
+            it.roles = setOf(UserRoleDAO("USER"))
         }
 
 

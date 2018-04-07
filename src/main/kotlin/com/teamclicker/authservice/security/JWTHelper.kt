@@ -22,7 +22,7 @@ class JWTHelper(
         val customClaims = jwtDataToClaimsMapper.parse(
             JWTData(
                 accountId = userAccount.id!!,
-                roles = userAccount.roles.map { it.id!! },
+                roles = userAccount.roles.map { it.id!! }.toSet(),
                 authenticationMethod = authenticationMethod
             )
         )

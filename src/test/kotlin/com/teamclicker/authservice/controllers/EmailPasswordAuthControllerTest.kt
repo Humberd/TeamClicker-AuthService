@@ -49,7 +49,7 @@ internal class EmailPasswordAuthControllerTest {
                 }
 
             val jwtData = jwtExtractorHelper.getJwtData(response)
-            assertEquals(listOf("USER"), jwtData.roles)
+            assertEquals(setOf("USER"), jwtData.roles)
         }
 
         @Test
