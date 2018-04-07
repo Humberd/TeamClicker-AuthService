@@ -10,4 +10,3 @@ class AuthserviceApplication
 fun main(args: Array<String>) {
     runApplication<AuthserviceApplication>(*args)
 }
-

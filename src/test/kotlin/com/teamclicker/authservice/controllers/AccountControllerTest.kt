@@ -7,6 +7,10 @@ import com.teamclicker.authservice.controllers.helpers.AccountControllerHelper
 import com.teamclicker.authservice.controllers.helpers.EmailPasswordAuthControllerHelper
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
+import com.teamclicker.authservice.controllers.helpers.HttpConstants.DAVE_ADMIN
+import com.teamclicker.authservice.dao.Role.ADMIN
+import com.teamclicker.authservice.dao.Role.USER
+import com.teamclicker.authservice.dto.AccountUpdateRolesDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -103,6 +107,95 @@ internal class AccountControllerTest {
                 .also {
                     assertEquals(HttpStatus.valueOf(411), it.statusCode)
                 }
+        }
+    }
+
+    @Nested
+    inner class UpdateRoles {
+        @BeforeEach
+        fun setUp() {
+            userAccountRepository.deleteAll()
+        }
+
+        @Test
+        fun `should update user roles`() {
+            authHelper.signUp(DAVE_ADMIN)
+            val aliceJwt = authHelper.signUp(ALICE)
+
+            val body = AccountUpdateRolesDTO().also {
+                it.roles = setOf(ADMIN, USER)
+            }
+            accountHelper.updateRoles()
+                .accountId(aliceJwt.accountId)
+                .with(DAVE_ADMIN)
+                .sending(body)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertEquals(null, it.body)
+                }
+
+            authHelper.signIn(ALICE).also {
+                assertEquals(setOf(ADMIN, USER), it.roles)
+            }
+        }
+
+        @Test
+        fun `should not update user roles when user is not ADMIN`() {
+            authHelper.signUp(BOB)
+            val aliceJwt = authHelper.signUp(ALICE)
+
+            val body = AccountUpdateRolesDTO().also {
+                it.roles = setOf(ADMIN, USER)
+            }
+            accountHelper.updateRoles()
+                .accountId(aliceJwt.accountId)
+                .with(BOB)
+                .sending(body)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.valueOf(403), it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not update user roles when user with userId does not exist`() {
+            authHelper.signUp(DAVE_ADMIN)
+            authHelper.signUp(ALICE)
+
+            val body = AccountUpdateRolesDTO().also {
+                it.roles = setOf(ADMIN, USER)
+            }
+            accountHelper.updateRoles()
+                .accountId(-4321)
+                .with(DAVE_ADMIN)
+                .sending(body)
+                .expectError().also {
+                    assertEquals(HttpStatus.valueOf(411), it.statusCode)
+                }
+
+            authHelper.signIn(ALICE).also {
+                assertEquals(setOf(USER), it.roles)
+            }
+        }
+        
+        @Test
+        fun `should not update roles when new role does not exist`() {
+            authHelper.signUp(DAVE_ADMIN)
+            val aliceJwt = authHelper.signUp(ALICE)
+
+            val body = AccountUpdateRolesDTO().also {
+                it.roles = setOf(ADMIN, USER, "INVALID_ROLE")
+            }
+            accountHelper.updateRoles()
+                .accountId(aliceJwt.accountId)
+                .with(DAVE_ADMIN)
+                .sending(body)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.valueOf(400), it.statusCode)
+                }
+
+            authHelper.signIn(ALICE).also {
+                assertEquals(setOf(USER), it.roles)
+            }
         }
     }
 }

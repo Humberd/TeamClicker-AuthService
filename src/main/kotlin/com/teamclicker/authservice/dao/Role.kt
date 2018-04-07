@@ -1,6 +1,16 @@
 package com.teamclicker.authservice.dao 
 
 object Role {
-    val USER = "USER"
-    val ADMIN = "ADMIN"
+    const val USER = "USER"
+    const val ADMIN = "ADMIN"
+}
+
+enum class RoleType {
+    USER,
+    ADMIN
+}
+
+object SpELRole {
+    const val _USER = "'USER'"
+    const val _ADMIN = "'ADMIN'"
 }

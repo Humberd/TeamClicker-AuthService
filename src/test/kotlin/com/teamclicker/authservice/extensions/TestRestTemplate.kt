@@ -13,3 +13,13 @@ fun <T> TestRestTemplate.deleteForEntity(
 ): ResponseEntity<T> {
     return this.exchange(url, HttpMethod.DELETE, request, responseType, urlVariables)
 }
+
+fun <T> TestRestTemplate.putForEntity(
+    url: String,
+    request: HttpEntity<*>,
+    responseType: Class<T>,
+    urlVariables: Map<String, *>
+): ResponseEntity<T> {
+    return this.exchange(url, HttpMethod.PUT, request, responseType, urlVariables)
+}
+

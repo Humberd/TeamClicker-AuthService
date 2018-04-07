@@ -1,6 +1,8 @@
 package com.teamclicker.authservice.controllers.helpers
 
+import com.teamclicker.authservice.dto.AccountUpdateRolesDTO
 import com.teamclicker.authservice.extensions.deleteForEntity
+import com.teamclicker.authservice.extensions.putForEntity
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity
@@ -9,11 +11,12 @@ import org.springframework.stereotype.Service
 @Service
 class AccountControllerHelper(private val http: TestRestTemplate) {
     fun deleteAccount() = DeleteAccountEndpointBuilder()
+    fun updateRoles() = UpdateRolesEndpointBuilder()
 
     inner class DeleteAccountEndpointBuilder :
-        EndpointBuilder<DeleteAccountEndpointBuilder, Void, Void>(Void::class.java, http) {
+        EndpointBuilder<DeleteAccountEndpointBuilder, Void, String>(String::class.java, http) {
 
-        fun accountId(value: Any) = this.addParam("accountId", value)
+        fun accountId(value: Long) = this.addParam("accountId", value)
 
         override fun <T> build(httpEntity: HttpEntity<Void>, responseBodyType: Class<T>): ResponseEntity<T> {
             return http.deleteForEntity(
@@ -23,5 +26,24 @@ class AccountControllerHelper(private val http: TestRestTemplate) {
                 urlParams
             )
         }
+    }
+
+    inner class UpdateRolesEndpointBuilder :
+        EndpointBuilder<UpdateRolesEndpointBuilder, AccountUpdateRolesDTO, String>(String::class.java, http) {
+
+        fun accountId(value: Long) = this.addParam("accountId", value)
+
+        override fun <T> build(
+            httpEntity: HttpEntity<AccountUpdateRolesDTO>,
+            responseBodyType: Class<T>
+        ): ResponseEntity<T> {
+            return http.putForEntity(
+                "/api/auth/accounts/{accountId}/roles",
+                httpEntity,
+                responseBodyType,
+                urlParams
+            )
+        }
+
     }
 }

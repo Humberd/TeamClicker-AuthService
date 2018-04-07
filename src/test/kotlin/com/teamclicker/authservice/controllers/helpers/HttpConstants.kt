@@ -18,6 +18,11 @@ object HttpConstants {
             email = "chuck@chuck.com",
             password = "chuckPassword"
         )
+    val DAVE_ADMIN
+        get() = UserAccountMock(
+            email = "dave@admin.com",
+            password = "adminPassword"
+        )
     val ANONYMOUS: UserAccountMock?
         get() = null
 }
