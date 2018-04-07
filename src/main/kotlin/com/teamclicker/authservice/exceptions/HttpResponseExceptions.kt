@@ -21,5 +21,10 @@ class PermissionsNotSufficientException(message: String) : RuntimeException(mess
 class EntityAlreadyExistsException(message: String) : RuntimeException(message)
 
 @ResponseBody
+@ResponseStatus(HttpStatus.LENGTH_REQUIRED) // 411
+class EntityDoesNotExistException(message: String) : RuntimeException(message)
+
+
+@ResponseBody
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) // 500
 class InternalServerErrorException(message: String) : RuntimeException(message)

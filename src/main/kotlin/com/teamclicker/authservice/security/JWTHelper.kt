@@ -3,6 +3,7 @@ package com.teamclicker.authservice.security
 import com.teamclicker.authservice.Constants.JWT_EXPIRATION_TIME
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.Constants.JWT_TOKEN_PREFIX
+import com.teamclicker.authservice.dao.AuthenticationMethod
 import com.teamclicker.authservice.dao.UserAccountDAO
 import com.teamclicker.authservice.mappers.JWTDataToClaimsMapper
 import io.jsonwebtoken.Jwts

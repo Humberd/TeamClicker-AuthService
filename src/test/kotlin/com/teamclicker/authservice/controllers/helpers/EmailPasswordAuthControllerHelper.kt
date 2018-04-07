@@ -3,11 +3,37 @@ package com.teamclicker.authservice.controllers.helpers
 import com.teamclicker.authservice.dto.EmailPasswordChangePasswordDTO
 import com.teamclicker.authservice.dto.EmailPasswordSignInDTO
 import com.teamclicker.authservice.dto.EmailPasswordSignUpDTO
+import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
 import com.teamclicker.authservice.testmodels.UserAccountMock
+import org.junit.jupiter.api.Assertions
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Service
 
-class EmailPasswordAuthControllerHelper(private val http: TestRestTemplate) {
+@Service
+class EmailPasswordAuthControllerHelper(
+    private val http: TestRestTemplate,
+    private val jwtExtractorHelper: JwtExtractorHelper
+) {
+    fun signUp() = SignUpEndpointBuilder()
+
+    /**
+     * Signs up a [user] and returns its Jwt data
+     */
+    fun signUp(user: UserAccountMock) = signUp()
+        .with(user)
+        .expectSuccess().also {
+            Assertions.assertEquals(HttpStatus.OK, it.statusCode)
+        }.let {
+            jwtExtractorHelper.getJwtData(it)
+        }
+
+    fun signIn() = SignInEndpointBuilder()
+
+    fun changePassword() = ChangePasswordEndpointBuilder()
+
     inner class SignUpEndpointBuilder :
         EndpointBuilder<SignUpEndpointBuilder, EmailPasswordSignUpDTO, Void>(Void::class.java, http) {
         override fun with(user: UserAccountMock?): SignUpEndpointBuilder {
@@ -15,11 +41,14 @@ class EmailPasswordAuthControllerHelper(private val http: TestRestTemplate) {
             return this
         }
 
-        override fun <T> build(type: Class<T>): ResponseEntity<T> {
+        override fun <T> build(
+            httpEntity: HttpEntity<EmailPasswordSignUpDTO>,
+            responseBodyType: Class<T>
+        ): ResponseEntity<T> {
             return http.postForEntity(
                 "/api/auth/emailPassword/signUp",
                 httpEntity,
-                type
+                responseBodyType
             )
         }
     }
@@ -31,11 +60,14 @@ class EmailPasswordAuthControllerHelper(private val http: TestRestTemplate) {
             return this
         }
 
-        override fun <T> build(type: Class<T>): ResponseEntity<T> {
+        override fun <T> build(
+            httpEntity: HttpEntity<EmailPasswordSignInDTO>,
+            responseBodyType: Class<T>
+        ): ResponseEntity<T> {
             return http.postForEntity(
                 "/api/auth/emailPassword/signIn",
                 httpEntity,
-                type
+                responseBodyType
             )
         }
     }
@@ -45,11 +77,15 @@ class EmailPasswordAuthControllerHelper(private val http: TestRestTemplate) {
             Void::class.java,
             http
         ) {
-        override fun <T> build(type: Class<T>): ResponseEntity<T> {
+
+        override fun <T> build(
+            httpEntity: HttpEntity<EmailPasswordChangePasswordDTO>,
+            responseBodyType: Class<T>
+        ): ResponseEntity<T> {
             return http.postForEntity(
                 "/api/auth/emailPassword/changePassword",
                 httpEntity,
-                type
+                responseBodyType
             )
         }
     }

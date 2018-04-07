@@ -17,10 +17,13 @@ abstract class EndpointBuilder<Child, Body, Response>(
     val responseType: Class<Response>,
     val http: TestRestTemplate
 ) {
+    protected val urlParams = hashMapOf<String, Any>()
     protected var body: Body? = null
-    protected val headers: MultiValueMap<String, String> = HttpHeaders()
-    protected lateinit var httpEntity: HttpEntity<Body>
+    protected val headers = HttpHeaders()
 
+    /**
+     * Makes a http request to a signIn endpoint and saves its jwt to the headers map
+     */
     open fun with(user: UserAccountMock?): Child {
         if (user !== HttpConstants.ANONYMOUS) {
             val jwt = http.postForEntity(
@@ -42,24 +45,34 @@ abstract class EndpointBuilder<Child, Body, Response>(
         return this as Child
     }
 
+    fun addParam(key: String, value: Any): Child {
+        this.urlParams.put(key, value)
+        return this as Child
+    }
+
+    fun addHeader(key: String, value: String): Child {
+        this.headers.add(key, value)
+        return this as Child
+    }
+
     fun <Err : Any> expectError(type: KClass<Err>): ResponseEntity<Err> {
-        composeHttpEntity()
-        return build(type.java)
+        val httpEntity = composeHttpEntity()
+        return build(httpEntity, type.java)
     }
 
     fun expectError(): ResponseEntity<SpringErrorResponse> {
-        composeHttpEntity()
-        return build(SpringErrorResponse::class.java)
+        val httpEntity = composeHttpEntity()
+        return build(httpEntity, SpringErrorResponse::class.java)
     }
 
     fun expectSuccess(): ResponseEntity<Response> {
-        composeHttpEntity()
-        return build(responseType)
+        val httpEntity = composeHttpEntity()
+        return build(httpEntity, responseType)
     }
 
-    private fun composeHttpEntity() {
-        httpEntity = HttpEntity(body, headers)
+    private fun composeHttpEntity(): HttpEntity<Body> {
+        return HttpEntity(body, headers)
     }
 
-    abstract protected fun <T> build(type: Class<T>): ResponseEntity<T>
+    abstract protected fun <T> build(httpEntity: HttpEntity<Body>, responseBodyType: Class<T>): ResponseEntity<T>
 }

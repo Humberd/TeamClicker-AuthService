@@ -1,5 +1,6 @@
 package com.teamclicker.authservice.dbloaders
 
+import com.teamclicker.authservice.dao.Role
 import com.teamclicker.authservice.dao.UserRoleDAO
 import com.teamclicker.authservice.repositories.UserRoleRepository
 import org.springframework.boot.ApplicationArguments
@@ -13,8 +14,8 @@ class UserRolesLoader(
     override fun run(args: ApplicationArguments?) {
         userRoleRepository.saveAll(
             listOf(
-                UserRoleDAO("USER"),
-                UserRoleDAO("ADMIN")
+                UserRoleDAO(Role.USER),
+                UserRoleDAO(Role.ADMIN)
             )
         )
     }

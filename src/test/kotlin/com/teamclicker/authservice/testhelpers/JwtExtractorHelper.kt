@@ -14,7 +14,7 @@ class JwtExtractorHelper(
     private val claimsToJWTDataMapper: ClaimsToJWTDataMapper,
     private val cryptoKeys: CryptoKeys
 ) {
-    fun getJwtData(response: ResponseEntity<*>): JWTData {
+    fun getJwtData(response: ResponseEntity<*>): JWTDataTestWrapper {
         val token = response.headers.get(JWT_HEADER_NAME)?.get(0)
         val rawToken = token?.replaceFirst(JWT_TOKEN_PREFIX, "")
         val jwtClaims = Jwts.parser()
@@ -22,6 +22,12 @@ class JwtExtractorHelper(
             .parseClaimsJws(rawToken)
             .getBody()
 
-        return claimsToJWTDataMapper.parse(jwtClaims)
+        val jwtData= claimsToJWTDataMapper.parse(jwtClaims)
+        return JWTDataTestWrapper(
+            jwtData.accountId,
+            jwtData.authenticationMethod,
+            jwtData.roles,
+            token!!
+        )
     }
 }

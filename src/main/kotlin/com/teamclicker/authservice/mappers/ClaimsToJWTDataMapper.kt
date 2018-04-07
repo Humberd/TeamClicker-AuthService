@@ -1,6 +1,6 @@
 package com.teamclicker.authservice.mappers
 
-import com.teamclicker.authservice.security.AuthenticationMethod
+import com.teamclicker.authservice.dao.AuthenticationMethod
 import com.teamclicker.authservice.security.JWTData
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.RequiredTypeException

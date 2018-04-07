@@ -11,7 +11,7 @@ import com.teamclicker.authservice.exceptions.EntityAlreadyExistsException
 import com.teamclicker.authservice.exceptions.InvalidCredentialsException
 import com.teamclicker.authservice.exceptions.InvalidRequestBodyException
 import com.teamclicker.authservice.repositories.UserAccountRepository
-import com.teamclicker.authservice.security.AuthenticationMethod
+import com.teamclicker.authservice.dao.AuthenticationMethod
 import com.teamclicker.authservice.security.JWTData
 import com.teamclicker.authservice.security.JWTHelper
 import io.swagger.annotations.ApiOperation

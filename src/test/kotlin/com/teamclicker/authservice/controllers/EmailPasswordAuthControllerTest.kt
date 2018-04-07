@@ -3,18 +3,20 @@
 package com.teamclicker.authservice.controllers
 
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
+import com.teamclicker.authservice.controllers.helpers.EmailPasswordAuthControllerHelper
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
 import com.teamclicker.authservice.dto.EmailPasswordChangePasswordDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
-import com.teamclicker.authservice.testhelpers.AuthHelper
 import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
@@ -23,17 +25,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class EmailPasswordAuthControllerTest {
     @Autowired
-    lateinit var http: TestRestTemplate
-    @Autowired
     lateinit var userAccountRepository: UserAccountRepository
     @Autowired
     lateinit var jwtExtractorHelper: JwtExtractorHelper
-    lateinit var authHelper: AuthHelper
-
-    @BeforeAll
-    fun beforeAll() {
-        authHelper = AuthHelper(http)
-    }
+    @Autowired
+    lateinit var authHelper: EmailPasswordAuthControllerHelper
 
     @Nested
     inner class SignUp {
