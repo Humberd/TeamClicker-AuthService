@@ -33,6 +33,7 @@ interface UserAccountRepository : JpaRepository<UserAccountDAO, Long> {
     )
     fun existsByEmail(@Param("emailLc") emailLc: String): Boolean
 
+    @Language("JPAQL")
     @Query(
         """
             select user
@@ -42,4 +43,13 @@ interface UserAccountRepository : JpaRepository<UserAccountDAO, Long> {
         """
     )
     override fun findById(@Param("id") id: Long): Optional<UserAccountDAO>
+
+    @Query(
+        """
+            select user
+            from UserAccountDAO as user
+            where user.id = :id
+        """
+    )
+    fun findByIdNoConstraints(@Param("id") id: Long): Optional<UserAccountDAO>
 }

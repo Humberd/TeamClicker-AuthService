@@ -9,6 +9,7 @@ import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -38,7 +39,7 @@ internal class AccountControllerTest {
         }
 
         @Test
-        fun `should delete user own account`() {
+        fun `should delete user own account and do not delete database records`() {
             val aliceJwt = authHelper.signUp(ALICE)
 
             accountHelper.deleteAccount()
@@ -56,11 +57,14 @@ internal class AccountControllerTest {
                 .also {
                     assertEquals(HttpStatus.valueOf(401), it.statusCode)
                 }
+
+            val dbRecord = userAccountRepository.findByIdNoConstraints(aliceJwt.accountId)
+            assertTrue(dbRecord.isPresent)
         }
 
         @Test
         fun `should not delete user account when its not his own`() {
-            val aliceJwt = authHelper.signUp(ALICE)
+            authHelper.signUp(ALICE)
             val bobJwt = authHelper.signUp(BOB)
 
             accountHelper.deleteAccount()

@@ -17,7 +17,7 @@ class AccountControllerHelper(private val http: TestRestTemplate) {
 
         override fun <T> build(httpEntity: HttpEntity<Void>, responseBodyType: Class<T>): ResponseEntity<T> {
             return http.deleteForEntity(
-                "/api/auth/accounts/{accountId}",
+                "/api/auth/accounts/{accountId}/delete",
                 httpEntity,
                 responseBodyType,
                 urlParams

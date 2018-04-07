@@ -6,7 +6,8 @@ import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
 import com.teamclicker.authservice.testhelpers.UserAccountRepositoryHelper
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -114,7 +115,7 @@ internal class UserAccountRepositoryTest {
 
         @Test
         fun `should not get a UserAccount when User with provided id does not exist`() {
-            val aliceAccount = repositoryHelper.add(ALICE)
+            repositoryHelper.add(ALICE)
 
             val result = userAccountRepository.findById(-123)
 
@@ -130,5 +131,42 @@ internal class UserAccountRepositoryTest {
 
             assertFalse(result.isPresent)
         }
+    }
+
+    @Nested
+    inner class FindByIdNoConstraints {
+        @BeforeEach
+        fun setUp() {
+            userAccountRepository.deleteAll()
+        }
+
+        @Test
+        fun `should get a UserAccount`() {
+            val aliceAccount = repositoryHelper.add(ALICE)
+
+            val result = userAccountRepository.findByIdNoConstraints(aliceAccount.id!!)
+
+            assertTrue(result.isPresent)
+        }
+
+        @Test
+        fun `should not get a UserAccount when User with provided id does not exist`() {
+            repositoryHelper.add(ALICE)
+
+            val result = userAccountRepository.findByIdNoConstraints(-123)
+
+            assertFalse(result.isPresent)
+        }
+
+        @Test
+        fun `should get a UserAccount when account is deleted`() {
+            val aliceAccount = repositoryHelper.add(ALICE)
+            repositoryHelper.delete(aliceAccount)
+
+            val result = userAccountRepository.findByIdNoConstraints(aliceAccount.id!!)
+
+            assertTrue(result.isPresent)
+        }
+
     }
 }

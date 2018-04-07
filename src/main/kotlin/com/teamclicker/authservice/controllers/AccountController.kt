@@ -1,9 +1,11 @@
 package com.teamclicker.authservice.controllers
 
+import com.teamclicker.authservice.dao.UserAccountDeletionDAO
 import com.teamclicker.authservice.exceptions.EntityDoesNotExistException
 import com.teamclicker.authservice.exceptions.InvalidCredentialsException
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.security.JWTData
+import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import mu.KLogging
@@ -20,6 +22,11 @@ class AccountController(
     private val userAccountRepository: UserAccountRepository
 ) {
 
+    @ApiOperation(
+        value = "Deletes user account", notes = """
+
+    """
+    )
     @ApiResponses(
         value = [
             ApiResponse(code = 200, message = "Account deleted successfully"),
@@ -30,7 +37,7 @@ class AccountController(
     )
     @PreAuthorize("isAuthenticated()")
     @Transactional
-    @DeleteMapping("/{accountId}")
+    @DeleteMapping("/{accountId}/delete")
     fun deleteAccount(
         @PathVariable accountId: Long,
         jwt: JWTData
@@ -42,15 +49,18 @@ class AccountController(
         val account = userAccountRepository.findById(accountId)
         if (!account.isPresent) {
             logger.error {
-                """Trying to delete a user, but the user does not already exist.
+                """Trying to delete a user, but the user does not exist.
                 |Potential fix: Clear user token after account deletion.""".trimMargin()
             }
             throw EntityDoesNotExistException("User does not exist")
         }
-        userAccountRepository.delete(account.get())
+        account.get().also {
+            it.deletion = UserAccountDeletionDAO()
+        }
 
         return ResponseEntity(HttpStatus.OK)
     }
+
 
     companion object : KLogging()
 }
