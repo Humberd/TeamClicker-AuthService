@@ -3,11 +3,11 @@
 package com.teamclicker.authservice.controllers
 
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
+import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
+import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
 import com.teamclicker.authservice.dto.EmailPasswordChangePasswordDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.testhelpers.AuthHelper
-import com.teamclicker.authservice.testhelpers.AuthHelper.Companion.ALICE
-import com.teamclicker.authservice.testhelpers.AuthHelper.Companion.BOB
 import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
@@ -48,9 +48,8 @@ internal class EmailPasswordAuthControllerTest {
                 .with(ALICE)
                 .expectSuccess()
                 .also {
-                    4
                     assertEquals(HttpStatus.OK, it.statusCode)
-                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                    assertNotNull(it.headers[JWT_HEADER_NAME])
                 }
 
             val jwtData = jwtExtractorHelper.getJwtData(response)
@@ -64,7 +63,7 @@ internal class EmailPasswordAuthControllerTest {
                 .expectError()
                 .also {
                     assertEquals(HttpStatus.BAD_REQUEST, it.statusCode)
-                    assertNull(it.headers.get(JWT_HEADER_NAME))
+                    assertNull(it.headers[JWT_HEADER_NAME])
                     assertEquals(1, it.body?.errors?.size)
                     assertEquals("email", it.body?.errors?.get(0)?.field)
                     assertEquals("Email", it.body?.errors?.get(0)?.code)
@@ -78,7 +77,7 @@ internal class EmailPasswordAuthControllerTest {
                 .expectError()
                 .also {
                     assertEquals(HttpStatus.BAD_REQUEST, it.statusCode)
-                    assertNull(it.headers.get(JWT_HEADER_NAME))
+                    assertNull(it.headers[JWT_HEADER_NAME])
                     assertEquals(1, it.body?.errors?.size)
                     assertEquals("password", it.body?.errors?.get(0)?.field)
                     assertEquals("Size", it.body?.errors?.get(0)?.code)
@@ -99,7 +98,7 @@ internal class EmailPasswordAuthControllerTest {
                 .expectError()
                 .also {
                     assertEquals(HttpStatus.GONE, it.statusCode)
-                    assertNull(it.headers.get(JWT_HEADER_NAME))
+                    assertNull(it.headers[JWT_HEADER_NAME])
                 }
         }
     }
@@ -120,7 +119,7 @@ internal class EmailPasswordAuthControllerTest {
                 .expectSuccess()
                 .also {
                     assertEquals(HttpStatus.OK, it.statusCode)
-                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                    assertNotNull(it.headers[JWT_HEADER_NAME])
                 }
         }
 
@@ -134,9 +133,9 @@ internal class EmailPasswordAuthControllerTest {
                 .expectSuccess()
                 .also {
                     assertEquals(HttpStatus.OK, it.statusCode)
-                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                    assertNotNull(it.headers[JWT_HEADER_NAME])
                 }.let {
-                    it.headers.get(JWT_HEADER_NAME)?.first()
+                    it.headers[JWT_HEADER_NAME]?.first()
                 }
 
             val secondJwt = authHelper.signIn()
@@ -144,9 +143,9 @@ internal class EmailPasswordAuthControllerTest {
                 .expectSuccess()
                 .also {
                     assertEquals(HttpStatus.OK, it.statusCode)
-                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                    assertNotNull(it.headers[JWT_HEADER_NAME])
                 }.let {
-                    it.headers.get(JWT_HEADER_NAME)?.first()
+                    it.headers[JWT_HEADER_NAME]?.first()
                 }
 
             assertNotEquals(firstJwt, secondJwt)
@@ -161,9 +160,9 @@ internal class EmailPasswordAuthControllerTest {
                 .expectSuccess()
                 .also {
                     assertEquals(HttpStatus.OK, it.statusCode)
-                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                    assertNotNull(it.headers[JWT_HEADER_NAME])
                 }.let {
-                    it.headers.get(JWT_HEADER_NAME)?.first()
+                    it.headers[JWT_HEADER_NAME]?.first()
                 }
 
             val secondJwt = authHelper.signIn()
@@ -171,9 +170,9 @@ internal class EmailPasswordAuthControllerTest {
                 .expectSuccess()
                 .also {
                     assertEquals(HttpStatus.OK, it.statusCode)
-                    assertNotNull(it.headers.get(JWT_HEADER_NAME))
+                    assertNotNull(it.headers[JWT_HEADER_NAME])
                 }.let {
-                    it.headers.get(JWT_HEADER_NAME)?.first()
+                    it.headers[JWT_HEADER_NAME]?.first()
                 }
 
             assertNotEquals(firstJwt, secondJwt)

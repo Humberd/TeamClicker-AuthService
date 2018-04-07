@@ -2,8 +2,8 @@
 
 package com.teamclicker.authservice.repositories
 
-import com.teamclicker.authservice.testhelpers.AuthHelper.Companion.ALICE
-import com.teamclicker.authservice.testhelpers.AuthHelper.Companion.BOB
+import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
+import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
 import com.teamclicker.authservice.testhelpers.UserAccountRepositoryHelper
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
