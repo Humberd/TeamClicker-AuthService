@@ -48,6 +48,7 @@ internal class EmailPasswordAuthControllerTest {
                 .with(ALICE)
                 .expectSuccess()
                 .also {
+                    4
                     assertEquals(HttpStatus.OK, it.statusCode)
                     assertNotNull(it.headers.get(JWT_HEADER_NAME))
                 }
@@ -104,63 +105,6 @@ internal class EmailPasswordAuthControllerTest {
     }
 
     @Nested
-    inner class ChangePassword {
-        @BeforeEach
-        fun setUp() {
-            userAccountRepository.deleteAll()
-        }
-
-        @Test
-        fun `should changePassword`() {
-            val body = EmailPasswordChangePasswordDTO().also {
-                it.oldPassword = ALICE.password
-                it.newPassword = "newAlicePassword"
-            }
-            authHelper.changePassword()
-                .with(ALICE)
-                .sending(body)
-                .expectSuccess().also {
-                    assertEquals(HttpStatus.OK, it.statusCode)
-                    assertEquals(null, it.body)
-                }
-
-            authHelper.signIn()
-                .with(ALICE.copy(password = "newAlicePassword"))
-                .expectSuccess().also {
-                    assertEquals(HttpStatus.OK, it.statusCode)
-                }
-        }
-
-        @Test
-        fun `should not changePassword when new password is the same as the old one`() {
-            val body = EmailPasswordChangePasswordDTO().also {
-                it.oldPassword = ALICE.password
-                it.newPassword = ALICE.password
-            }
-            authHelper.changePassword()
-                .with(ALICE)
-                .sending(body)
-                .expectError().also {
-                    assertEquals(HttpStatus.BAD_REQUEST, it.statusCode)
-                }
-        }
-
-        @Test
-        fun `should not changePassword when old password is invalid`() {
-            val body = EmailPasswordChangePasswordDTO().also {
-                it.oldPassword = "invalidPassword"
-                it.newPassword = "newAlicePassword"
-            }
-            authHelper.changePassword()
-                .with(ALICE)
-                .sending(body)
-                .expectError().also {
-                    assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
-                }
-        }
-    }
-
-    @Nested
     inner class SignIn {
         @BeforeEach
         fun setUp() {
@@ -169,6 +113,8 @@ internal class EmailPasswordAuthControllerTest {
 
         @Test
         fun `should signIn`() {
+            authHelper.signUp(ALICE)
+
             authHelper.signIn()
                 .with(ALICE)
                 .expectSuccess()
@@ -180,6 +126,9 @@ internal class EmailPasswordAuthControllerTest {
 
         @Test
         fun `should return different tokens for different users`() {
+            authHelper.signUp(ALICE)
+            authHelper.signUp(BOB)
+
             val firstJwt = authHelper.signIn()
                 .with(ALICE)
                 .expectSuccess()
@@ -205,6 +154,8 @@ internal class EmailPasswordAuthControllerTest {
 
         @Test
         fun `should return different tokens for the same user`() {
+            authHelper.signUp(ALICE)
+
             val firstJwt = authHelper.signIn()
                 .with(ALICE)
                 .expectSuccess()
@@ -230,12 +181,7 @@ internal class EmailPasswordAuthControllerTest {
 
         @Test
         fun `should not signIn when providing invalid password for existing user`() {
-            authHelper.signUp()
-                .with(ALICE)
-                .expectSuccess()
-                .also {
-                    assertEquals(HttpStatus.OK, it.statusCode)
-                }
+            authHelper.signUp(ALICE)
 
             authHelper.signIn()
                 .with(ALICE.also { it.password = "differentPassword123" })
@@ -247,20 +193,75 @@ internal class EmailPasswordAuthControllerTest {
 
         @Test
         fun `should not signIn when providing credential fornot existing user`() {
-            authHelper.signUp()
-                .with(ALICE)
-                .expectSuccess()
+            authHelper.signUp(ALICE)
+
+            authHelper.signIn()
+                .with(BOB)
+                .expectError()
                 .also {
+                    assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
+                }
+        }
+    }
+
+    @Nested
+    inner class ChangePassword {
+        @BeforeEach
+        fun setUp() {
+            userAccountRepository.deleteAll()
+        }
+
+        @Test
+        fun `should changePassword`() {
+            authHelper.signUp(ALICE)
+
+            val body = EmailPasswordChangePasswordDTO().also {
+                it.oldPassword = ALICE.password
+                it.newPassword = "newAlicePassword"
+            }
+            authHelper.changePassword()
+                .with(ALICE)
+                .sending(body)
+                .expectSuccess().also {
                     assertEquals(HttpStatus.OK, it.statusCode)
+                    assertEquals(null, it.body)
                 }
 
             authHelper.signIn()
-                .with(ALICE.also {
-                    it.email = "differentMail.mail.com"
-                    it.password = "differentPassword123"
-                })
-                .expectError()
-                .also {
+                .with(ALICE.copy(password = "newAlicePassword"))
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not changePassword when new password is the same as the old one`() {
+            authHelper.signUp(ALICE)
+
+            val body = EmailPasswordChangePasswordDTO().also {
+                it.oldPassword = ALICE.password
+                it.newPassword = ALICE.password
+            }
+            authHelper.changePassword()
+                .with(ALICE)
+                .sending(body)
+                .expectError().also {
+                    assertEquals(HttpStatus.BAD_REQUEST, it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not changePassword when old password is invalid`() {
+            authHelper.signUp(ALICE)
+
+            val body = EmailPasswordChangePasswordDTO().also {
+                it.oldPassword = "invalidPassword"
+                it.newPassword = "newAlicePassword"
+            }
+            authHelper.changePassword()
+                .with(ALICE)
+                .sending(body)
+                .expectError().also {
                     assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
                 }
         }
