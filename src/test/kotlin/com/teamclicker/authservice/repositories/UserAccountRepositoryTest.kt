@@ -37,7 +37,7 @@ internal class UserAccountRepositoryTest {
 
             val result = userAccountRepository.findByEmail(ALICE.email!!)
 
-            assertNotNull(result)
+            assertTrue(result.isPresent)
         }
 
         @Test
@@ -46,7 +46,17 @@ internal class UserAccountRepositoryTest {
 
             val result = userAccountRepository.findByEmail(BOB.email!!)
 
-            assertNull(result)
+            assertFalse(result.isPresent)
+        }
+
+        @Test
+        fun `should not get a UserAccount when the account is deleted`() {
+            val account = repositoryHelper.add(ALICE)
+            repositoryHelper.delete(account)
+
+            val result = userAccountRepository.findByEmail(ALICE.email!!)
+
+            assertFalse(result.isPresent)
         }
     }
 
@@ -67,12 +77,58 @@ internal class UserAccountRepositoryTest {
         }
 
         @Test
-        fun `should return fakse when User with provided email does not exist`() {
+        fun `should return false when User with provided email does not exist`() {
             repositoryHelper.add(ALICE)
 
             val result = userAccountRepository.existsByEmail(BOB.email!!)
 
             assertFalse(result)
+        }
+
+        @Test
+        fun `should return false when the account is deleted`() {
+            val account = repositoryHelper.add(ALICE)
+            repositoryHelper.delete(account)
+
+            val result = userAccountRepository.existsByEmail(ALICE.email!!)
+
+            assertFalse(result)
+        }
+    }
+
+    @Nested
+    inner class FindById {
+        @BeforeEach
+        fun setUp() {
+            userAccountRepository.deleteAll()
+        }
+
+        @Test
+        fun `should get a UserAccount`() {
+            val aliceAccount = repositoryHelper.add(ALICE)
+
+            val result = userAccountRepository.findById(aliceAccount.id!!)
+
+            assertTrue(result.isPresent)
+        }
+
+        @Test
+        fun `should not get a UserAccount when User with provided id does not exist`() {
+            val aliceAccount = repositoryHelper.add(ALICE)
+
+            val result = userAccountRepository.findById(-123)
+
+            assertFalse(result.isPresent)
+        }
+
+        @Test
+        fun `should not get a UserAccount when account is deleted`() {
+            val aliceAccount = repositoryHelper.add(ALICE)
+            repositoryHelper.delete(aliceAccount)
+
+            val result = userAccountRepository.findById(aliceAccount.id!!)
+
+            assertFalse(result.isPresent)
         }
     }
 }

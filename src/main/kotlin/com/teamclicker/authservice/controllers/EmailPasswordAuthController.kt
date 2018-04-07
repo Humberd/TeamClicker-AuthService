@@ -93,19 +93,19 @@ class EmailPasswordAuthController(
     @PostMapping("/signIn")
     fun signIn(@RequestBody @Valid body: EmailPasswordSignInDTO): ResponseEntity<Void> {
         val userAccount = userAccountRepository.findByEmail(body.email!!.toLowerCase())
-        if (userAccount === null) {
+        if (!userAccount.isPresent) {
             logger.trace { "User not found" }
             throw InvalidCredentialsException("Invalid credentials")
         }
 
-        val encodedPassword = userAccount.emailPasswordAuth?.password
+        val encodedPassword = userAccount.get().emailPasswordAuth?.password
         val rawPassword = body.password
         if (!bCryptPasswordEncoder.matches(rawPassword, encodedPassword)) {
             logger.trace { "Passwords don't match" }
             throw InvalidCredentialsException("Invalid credentials")
         }
 
-        val jwtString = jwtHelper.convertUserAccountToJwtString(userAccount, AuthenticationMethod.USERNAME_PASSWORD)
+        val jwtString = jwtHelper.convertUserAccountToJwtString(userAccount.get(), AuthenticationMethod.USERNAME_PASSWORD)
         val headers = jwtHelper.getHeaders(jwtString)
 
         return ResponseEntity(headers, HttpStatus.OK)
