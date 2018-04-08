@@ -55,7 +55,7 @@ node {
 //            withEnv([
 //                    "COMMIT_HASH=${getCommitHash()}",
 //                    "BUILD_NO=${getBuildNumber()}",
-//                    "TC_AUTH_TESTS_DATABASE_URL=jdbc:postgresql://${testDatabase}",
+//                    "TC_AUTH_TESTS_DATABASE_URL=${testDatabase}",
 //                    "TC_AUTH_TESTS_DATABASE_USERNAME=${testDatabaseUsername}",
 //                    "TC_AUTH_TESTS_DATABASE_PASSWORD=${testDatabasePassword}"
 //            ]) {

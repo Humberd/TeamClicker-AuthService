@@ -22,7 +22,7 @@ spec:
           # user and password to connect to the PostgreSQL instance.
           env:
             - name: TC_AUTH_DATABASE_URL
-              value: jdbc:postgresql://127.0.0.1:5432/auth-service
+              value: 127.0.0.1:5432/auth-service
             # [START cloudsql_secrets]
             - name: TC_AUTH_DATABASE_USERNAME
               valueFrom:
