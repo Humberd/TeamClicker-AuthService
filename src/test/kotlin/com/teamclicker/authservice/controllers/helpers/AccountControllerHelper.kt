@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class AccountControllerHelper(private val http: TestRestTemplate) {
     fun deleteAccount() = DeleteAccountEndpointBuilder()
+    fun undeleteAccount() = UndeleteAccountEndpointBuilder()
     fun updateRoles() = UpdateRolesEndpointBuilder()
 
     inner class DeleteAccountEndpointBuilder :
@@ -21,6 +22,21 @@ class AccountControllerHelper(private val http: TestRestTemplate) {
         override fun <T> build(httpEntity: HttpEntity<Void>, responseBodyType: Class<T>): ResponseEntity<T> {
             return http.deleteForEntity(
                 "/api/auth/accounts/{accountId}/delete",
+                httpEntity,
+                responseBodyType,
+                urlParams
+            )
+        }
+    }
+
+    inner class UndeleteAccountEndpointBuilder :
+        EndpointBuilder<UndeleteAccountEndpointBuilder, Void, String>(String::class.java, http) {
+
+        fun accountId(value: Long) = this.addParam("accountId", value)
+
+        override fun <T> build(httpEntity: HttpEntity<Void>, responseBodyType: Class<T>): ResponseEntity<T> {
+            return http.postForEntity(
+                "/api/auth/accounts/{accountId}/undelete",
                 httpEntity,
                 responseBodyType,
                 urlParams
@@ -44,6 +60,5 @@ class AccountControllerHelper(private val http: TestRestTemplate) {
                 urlParams
             )
         }
-
     }
 }

@@ -85,7 +85,26 @@ internal class AccountControllerTest {
                 .also {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
+        }
 
+        @Test
+        fun `should delete user account when its not his own, but requesting user is ADMIN`() {
+            val aliceJwt = authHelper.signUp(ALICE)
+            authHelper.signUp(DAVE_ADMIN)
+
+            accountHelper.deleteAccount()
+                .accountId(aliceJwt.accountId)
+                .with(DAVE_ADMIN)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertEquals(null, it.body)
+                }
+
+            authHelper.signIn()
+                .with(ALICE)
+                .expectError().also {
+                    assertEquals(HttpStatus.valueOf(401), it.statusCode)
+                }
         }
 
         @Test
@@ -105,6 +124,91 @@ internal class AccountControllerTest {
                 .addHeader(JWT_HEADER_NAME, aliceJwt.token)
                 .expectError()
                 .also {
+                    assertEquals(HttpStatus.valueOf(411), it.statusCode)
+                }
+        }
+    }
+
+    @Nested
+    inner class UndeleteAccount {
+        @BeforeEach
+        fun setUp() {
+            userAccountRepository.deleteAll()
+        }
+
+        @Test
+        fun `should undelete user account when user is ADMIN`() {
+            val aliceJwt = authHelper.signUp(ALICE)
+            authHelper.signUp(DAVE_ADMIN)
+
+            accountHelper.deleteAccount()
+                .accountId(aliceJwt.accountId)
+                .with(DAVE_ADMIN)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+
+            authHelper.signIn()
+                .with(ALICE)
+                .expectError().also {
+                    assertEquals(HttpStatus.valueOf(401), it.statusCode)
+                }
+
+            accountHelper.undeleteAccount()
+                .accountId(aliceJwt.accountId)
+                .with(DAVE_ADMIN)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+
+            authHelper.signIn()
+                .with(ALICE)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not undlete user account when user is USER`() {
+            val aliceJwt = authHelper.signUp(ALICE)
+            authHelper.signUp(BOB)
+            authHelper.signUp(DAVE_ADMIN)
+
+            accountHelper.deleteAccount()
+                .accountId(aliceJwt.accountId)
+                .with(DAVE_ADMIN)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+
+            authHelper.signIn()
+                .with(ALICE)
+                .expectError().also {
+                    assertEquals(HttpStatus.valueOf(401), it.statusCode)
+                }
+
+            accountHelper.undeleteAccount()
+                .accountId(aliceJwt.accountId)
+                .with(BOB) // undeleting as bob
+                .expectError().also {
+                    assertEquals(HttpStatus.valueOf(403), it.statusCode)
+                }
+
+            authHelper.signIn()
+                .with(ALICE)
+                .expectError().also {
+                    assertEquals(HttpStatus.valueOf(401), it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not undelete user account when user does not exist`() {
+            authHelper.signUp(DAVE_ADMIN)
+
+            accountHelper.undeleteAccount()
+                .accountId(-4321)
+                .with(DAVE_ADMIN)
+                .expectError().also {
                     assertEquals(HttpStatus.valueOf(411), it.statusCode)
                 }
         }
@@ -176,7 +280,7 @@ internal class AccountControllerTest {
                 assertEquals(setOf(USER), it.roles)
             }
         }
-        
+
         @Test
         fun `should not update roles when new role does not exist`() {
             authHelper.signUp(DAVE_ADMIN)

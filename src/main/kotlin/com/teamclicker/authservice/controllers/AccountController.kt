@@ -1,5 +1,7 @@
 package com.teamclicker.authservice.controllers
 
+import com.teamclicker.authservice.dao.Role.ADMIN
+import com.teamclicker.authservice.dao.Role.USER
 import com.teamclicker.authservice.dao.SpELRole._ADMIN
 import com.teamclicker.authservice.dao.UserAccountDeletionDAO
 import com.teamclicker.authservice.dao.UserRoleDAO
@@ -28,7 +30,8 @@ class AccountController(
 
     @ApiOperation(
         value = "Deletes user account", notes = """
-
+Every authenticated user can delete his own account.
+Only ADMIN can delete any user account.
     """
     )
     @ApiResponses(
@@ -43,8 +46,15 @@ class AccountController(
     @Transactional
     @DeleteMapping("/{accountId}/delete")
     fun deleteAccount(@PathVariable accountId: Long, jwt: JWTData): ResponseEntity<Void> {
-        if (accountId != jwt.accountId) {
-            throw InvalidCredentialsException("Cannot delete account of another user")
+        when {
+            jwt.`is`(ADMIN) -> {
+                logger.debug { "Deleting account $accountId as $ADMIN(${jwt.accountId})" }
+            }
+            jwt.`is`(USER) -> {
+                if (accountId != jwt.accountId) {
+                    throw InvalidCredentialsException("Cannot delete account of another user")
+                }
+            }
         }
 
         val account = userAccountRepository.findById(accountId)
@@ -57,6 +67,37 @@ class AccountController(
         }
         account.get().also {
             it.deletion = UserAccountDeletionDAO()
+        }
+
+        return ResponseEntity(HttpStatus.OK)
+    }
+
+    @ApiOperation(
+        value = "Undeletes user account", notes = """
+Only ADMIN can undelete any user account
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(code = 200, message = "Account undeleted successfully"),
+            ApiResponse(code = 401, message = "Invalid credentials"),
+            ApiResponse(code = 403, message = "Unauthorized request"),
+            ApiResponse(code = 411, message = "User does not exist")
+        ]
+    )
+    @PreAuthorize("hasAuthority($_ADMIN)")
+    @Transactional
+    @PostMapping("/{accountId}/undelete")
+    fun undeleteAccount(@PathVariable accountId: Long, jwt: JWTData): ResponseEntity<Void> {
+
+        val account = userAccountRepository.findByIdNoConstraints(accountId)
+        if (!account.isPresent) {
+            logger.error { "Trying to undelete a user, but the user does not exist." }
+            throw EntityDoesNotExistException("User does not exist")
+        }
+
+        account.get().also {
+            it.deletion = null
         }
 
         return ResponseEntity(HttpStatus.OK)
