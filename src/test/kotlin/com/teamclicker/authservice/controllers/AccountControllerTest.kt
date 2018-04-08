@@ -197,5 +197,26 @@ internal class AccountControllerTest {
                 assertEquals(setOf(USER), it.roles)
             }
         }
+
+        @Test
+        fun `should not update roles when new role does not exist v2`() {
+            authHelper.signUp(DAVE_ADMIN)
+            val aliceJwt = authHelper.signUp(ALICE)
+
+            val body = AccountUpdateRolesDTO().also {
+                it.roles = setOf("INVALID_ROLE")
+            }
+            accountHelper.updateRoles()
+                .accountId(aliceJwt.accountId)
+                .with(DAVE_ADMIN)
+                .sending(body)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.valueOf(400), it.statusCode)
+                }
+
+            authHelper.signIn(ALICE).also {
+                assertEquals(setOf(USER), it.roles)
+            }
+        }
     }
 }

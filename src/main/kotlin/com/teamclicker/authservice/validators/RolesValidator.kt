@@ -5,11 +5,7 @@ import javax.validation.ConstraintValidator
 import javax.validation.ConstraintValidatorContext
 
 class RolesValidator : ConstraintValidator<ValidateRoles, Collection<String>> {
-    lateinit var allowedValues: List<String>
-
-    override fun initialize(constraintAnnotation: ValidateRoles?) {
-        allowedValues = RoleType.values().map { it.name }
-    }
+    val allowedValues: List<String> = RoleType.values().map { it.name }
 
     override fun isValid(value: Collection<String>?, context: ConstraintValidatorContext?): Boolean {
         return allowedValues.containsAll(value!!)
