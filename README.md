@@ -4,7 +4,7 @@
 
 ### Files
 
- 1. _src/main/resources/jwt_public_key.der_ - **public** jwt validating key
+ 1. _src/main/resources/jwt_public_key.der_ - **public** jwt validation key
  2. _src/main/resources/jwt_private_key.der_ - **private** jwt signing key
 
 How to generate keys -> https://stackoverflow.com/a/19387517/4256929
@@ -22,7 +22,7 @@ How to generate keys -> https://stackoverflow.com/a/19387517/4256929
 
 ### Files
 
- 1. _src/**test**/resources/jwt_public_key.der_ - **public** jwt validating key
+ 1. _src/**test**/resources/jwt_public_key.der_ - **public** jwt validation key
  2. _src/**test**/resources/jwt_private_key.der_ - **private** jwt signing key
 
 How to generate keys -> https://stackoverflow.com/a/19387517/4256929
