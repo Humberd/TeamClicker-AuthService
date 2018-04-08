@@ -1,17 +1,37 @@
 # Team Clicker Auth Service
 
-## Required deployment files:
+## Deployment requirements
 
- 1. src/main/resources/public_key.der - private key
- 2. src/main/resources/private_key.der - public key
+### Files
 
-How to create keys -> https://stackoverflow.com/a/19387517/4256929
+ 1. _src/main/resources/jwt_public_key.der_ - **public** jwt validating key
+ 2. _src/main/resources/jwt_private_key.der_ - **private** jwt signing key
 
-## Required deployment environment variables:
+How to generate keys -> https://stackoverflow.com/a/19387517/4256929
 
- 1. TC_AUTH_DATABSE_URL - url to the database
- 2. TC_AUTH_DATABSE_USERNAME - database username
- 3. TC_AUTH_DATABSE_PASSWORD - database password
- 4. TC_AUTH_TESTS_DATABASE_URL - url to the testing database
- 5. TC_AUTH_TESTS_DATABASE_USERNAME - test database username
- 6. TC_AUTH_TESTS_DATABASE_OASSWORD = test database password
+### Environment variables
+
+ 1. _TC_AUTH_DATABASE_URL_ - url to the PostgreSQL database, for example:
+ `127.0.0.1:4321/auth-service`
+ 2. _TC_AUTH_DATABASE_USERNAME_ - PostgreSQL database username, for example:
+ `admin`
+ 3. _TC_AUTH_DATABASE_PASSWORD_ - PostgreSQL database user password, for example:
+ `admin123`
+
+## Deployment Testing requirements
+
+### Files
+
+ 1. _src/**test**/resources/jwt_public_key.der_ - **public** jwt validating key
+ 2. _src/**test**/resources/jwt_private_key.der_ - **private** jwt signing key
+
+How to generate keys -> https://stackoverflow.com/a/19387517/4256929
+
+### Environment variables
+
+ 1. _TC_AUTH__**_TESTS_**__DATABASE_URL_ - url to the PostgreSQL database, for example:
+ `127.0.0.1:4321/auth-service-tests`
+ 2. _TC_AUTH__**_TESTS_**__DATABASE_USERNAME_ - PostgreSQL database username, for example:
+ `admin`
+ 3. _TC_AUTH__**_TESTS_**__DATABASE_PASSWORD_ - PostgreSQL database user password, for example:
+ `admin123`
