@@ -19,20 +19,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 class WebSecurity(
-    private val userDetailsService: UserDetailsService,
-    private val bCryptPasswordEncoder: BCryptPasswordEncoder,
     private val claimsToJWTDataMapper: ClaimsToJWTDataMapper,
     private val cryptoKeys: CryptoKeys
 ) : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity) {
-        http.cors().and().csrf().disable()
+        http.cors().disable()
+            .csrf().disable()
+            .httpBasic().disable()
+            .formLogin().disable()
             .addFilter(JWTAuthorizationFilter(authenticationManager(), claimsToJWTDataMapper, cryptoKeys))
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-    }
-
-    public override fun configure(auth: AuthenticationManagerBuilder?) {
-        auth!!.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder)
     }
 
     @Bean
