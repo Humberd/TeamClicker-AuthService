@@ -48,4 +48,20 @@ interface UserAccountRepository : JpaRepository<UserAccountDAO, Long> {
         """
     )
     fun findByIdNoConstraints(@Param("id") id: Long): Optional<UserAccountDAO>
+
+    @Query(
+        """
+            select case when(count (user) > 0) then true else false end
+            from UserAccountDAO as user
+            where user.deletion is null
+            and user.emailPasswordAuth.emailLc = :emailLc
+            and user.passwordReset.token = :token
+            and user.passwordReset.expiresAt >= :currentDate
+        """
+    )
+    fun existsByValidPasswordResetToken(
+        @Param("emailLc") emailLc: String,
+        @Param("token") token: String,
+        @Param("currentDate") currentDate: Date
+    ): Boolean
 }

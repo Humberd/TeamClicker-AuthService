@@ -4,6 +4,7 @@ package com.teamclicker.authservice.repositories
 
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
+import com.teamclicker.authservice.dao.PasswordResetDAO
 import com.teamclicker.authservice.testhelpers.UserAccountRepositoryHelper
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -168,5 +172,118 @@ internal class UserAccountRepositoryTest {
             assertTrue(result.isPresent)
         }
 
+    }
+
+    @Nested
+    inner class ExistsByValidPasswordResetToken {
+        @BeforeEach
+        fun setUp() {
+            userAccountRepository.deleteAll()
+        }
+
+        @Test
+        fun `should return true when there is a token expiring after currentDate`() {
+            val now = Instant.now()
+
+            val aliceAccount = repositoryHelper.add(ALICE)
+            aliceAccount.passwordReset = PasswordResetDAO().also {
+                it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
+                it.token = "aabbcc"
+            }
+            userAccountRepository.save(aliceAccount)
+
+            userAccountRepository.existsByValidPasswordResetToken(
+                emailLc = aliceAccount.emailPasswordAuth?.emailLc!!,
+                token = "aabbcc",
+                currentDate = Date.from(now)
+            ).also {
+                assertTrue(it)
+            }
+        }
+
+        @Test
+        fun `should return true when there is a token expiring exactly at currentDate`() {
+            val now = Instant.now()
+
+            val aliceAccount = repositoryHelper.add(ALICE)
+            aliceAccount.passwordReset = PasswordResetDAO().also {
+                it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
+                it.token = "aabbcc"
+            }
+            userAccountRepository.save(aliceAccount)
+
+            userAccountRepository.existsByValidPasswordResetToken(
+                emailLc = aliceAccount.emailPasswordAuth?.emailLc!!,
+                token = "aabbcc",
+                currentDate = Date.from(now.plus(1, ChronoUnit.DAYS))
+            ).also {
+                assertTrue(it)
+            }
+        }
+
+        @Test
+        fun `should return false when there is a token expired before currentDate`() {
+            val now = Instant.now()
+
+            val aliceAccount = repositoryHelper.add(ALICE)
+            aliceAccount.passwordReset = PasswordResetDAO().also {
+                it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
+                it.token = "aabbcc"
+            }
+            userAccountRepository.save(aliceAccount)
+
+            userAccountRepository.existsByValidPasswordResetToken(
+                emailLc = aliceAccount.emailPasswordAuth?.emailLc!!,
+                token = "aabbcc",
+                currentDate = Date.from(now.plus(2, ChronoUnit.DAYS))
+            ).also {
+                assertFalse(it)
+            }
+        }
+
+        @Test
+        fun `should retrn false when there is no token matching`() {
+            val now = Instant.now()
+
+            val aliceAccount = repositoryHelper.add(ALICE)
+            aliceAccount.passwordReset = PasswordResetDAO().also {
+                it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
+                it.token = "aabbcc"
+            }
+            userAccountRepository.save(aliceAccount)
+
+            userAccountRepository.existsByValidPasswordResetToken(
+                emailLc = aliceAccount.emailPasswordAuth?.emailLc!!,
+                token = "aabbcceeff",
+                currentDate = Date.from(now)
+            ).also {
+                assertFalse(it)
+            }
+        }
+
+        @Test
+        fun `should return false when there is valid token, but for another user`() {
+            val now = Instant.now()
+
+            val aliceAccount = repositoryHelper.add(ALICE)
+            val bobAccount = repositoryHelper.add(BOB)
+            aliceAccount.passwordReset = PasswordResetDAO().also {
+                it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
+                it.token = "aabbcc"
+            }
+            bobAccount.passwordReset = PasswordResetDAO().also {
+                it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
+                it.token = "xxyyzz"
+            }
+            userAccountRepository.saveAll(listOf(aliceAccount, bobAccount))
+
+            userAccountRepository.existsByValidPasswordResetToken(
+                emailLc = aliceAccount.emailPasswordAuth?.emailLc!!,
+                token = "xxyyzz",
+                currentDate = Date.from(now)
+            ).also {
+                assertFalse(it)
+            }
+        }
     }
 }
