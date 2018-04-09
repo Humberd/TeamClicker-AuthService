@@ -29,6 +29,10 @@ class UserAccountDAO {
     @JoinColumn(name = "facebookAuthId", nullable = true)
     var facebookAuth: FacebookAuthDAO? = null
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true, optional = true)
+    @JoinColumn(name = "passwordResetId", nullable = true)
+    var passwordReset: PasswordResetDAO? = null
+
     @ManyToMany()
     @JoinTable(
         name = "userAccountUserRole",
