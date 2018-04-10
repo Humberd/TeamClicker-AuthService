@@ -54,10 +54,10 @@ interface UserAccountRepository : JpaRepository<UserAccountDAO, Long> {
         """
             select case when(count (user) > 0) then true else false end
             from UserAccountDAO as user
-            where user.deletion is null
-            and user.emailPasswordAuth.emailLc = :emailLc
+            where user.emailPasswordAuth.emailLc = :emailLc
             and user.emailPasswordAuth.passwordReset.token = :token
             and user.emailPasswordAuth.passwordReset.expiresAt >= :currentDate
+            and user.deletion is null
         """
     )
     fun existsByValidPasswordResetToken(
@@ -65,4 +65,5 @@ interface UserAccountRepository : JpaRepository<UserAccountDAO, Long> {
         @Param("token") token: String,
         @Param("currentDate") currentDate: Date
     ): Boolean
+
 }

@@ -1,20 +1,21 @@
 package com.teamclicker.authservice.controllers
 
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
-import com.teamclicker.authservice.dao.EmailPasswordAuthDAO
-import com.teamclicker.authservice.dao.UserAccountDAO
-import com.teamclicker.authservice.dao.UserRoleDAO
+import com.teamclicker.authservice.Constants.RESET_PASSWORD_TOKEN_EXPIRATION_TIME_UNIT
+import com.teamclicker.authservice.Constants.RESET_PASSWORD_TOKEN_EXPIRATION_TIME_VALUE
+import com.teamclicker.authservice.dao.*
 import com.teamclicker.authservice.dto.EPChangePasswordDTO
+import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
 import com.teamclicker.authservice.dto.EPSignInDTO
 import com.teamclicker.authservice.dto.EPSignUpDTO
 import com.teamclicker.authservice.exceptions.EntityAlreadyExistsException
+import com.teamclicker.authservice.exceptions.EntityDoesNotExistException
 import com.teamclicker.authservice.exceptions.InvalidCredentialsException
 import com.teamclicker.authservice.exceptions.InvalidRequestBodyException
 import com.teamclicker.authservice.repositories.UserAccountRepository
-import com.teamclicker.authservice.dao.AuthenticationMethod
-import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
 import com.teamclicker.authservice.security.JWTData
 import com.teamclicker.authservice.security.JWTHelper
+import com.teamclicker.authservice.services.EmailService
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
@@ -26,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 import java.util.*
 import javax.validation.Valid
 
@@ -35,7 +37,8 @@ import javax.validation.Valid
 class EmailPasswordAuthController(
     private val userAccountRepository: UserAccountRepository,
     private val jwtHelper: JWTHelper,
-    private val bCryptPasswordEncoder: BCryptPasswordEncoder
+    private val bCryptPasswordEncoder: BCryptPasswordEncoder,
+    private val emailService: EmailService
 ) {
 
     @ApiOperation(
@@ -107,7 +110,8 @@ class EmailPasswordAuthController(
             throw InvalidCredentialsException("Invalid credentials")
         }
 
-        val jwtString = jwtHelper.convertUserAccountToJwtString(userAccount.get(), AuthenticationMethod.USERNAME_PASSWORD)
+        val jwtString =
+            jwtHelper.convertUserAccountToJwtString(userAccount.get(), AuthenticationMethod.USERNAME_PASSWORD)
         val headers = jwtHelper.getHeaders(jwtString)
 
         return ResponseEntity(headers, HttpStatus.OK)
@@ -173,9 +177,28 @@ Only ANONYMOUS users can request reset password email
     @PreAuthorize("isAnonymous()")
     @Transactional
     @PostMapping("/sendPasswordResetEmail")
-    fun sendPasswordResetEmail(@RequestBody @Valid body: EPSendPasswordResetEmailDTO) {
+    fun sendPasswordResetEmail(@RequestBody @Valid body: EPSendPasswordResetEmailDTO): ResponseEntity<Void> {
+        val userAccount = userAccountRepository.findByEmail(body.email?.toLowerCase()!!)
+        if (!userAccount.isPresent) {
+            throw EntityDoesNotExistException("User does not exist")
+        }
 
-        UUID.randomUUID().toString()
+        val token = UUID.randomUUID().toString()
+        userAccount.get().emailPasswordAuth!!.also {
+            it.passwordReset = PasswordResetDAO().also {
+                it.expiresAt = Date.from(
+                    Instant.now().plus(
+                        RESET_PASSWORD_TOKEN_EXPIRATION_TIME_VALUE,
+                        RESET_PASSWORD_TOKEN_EXPIRATION_TIME_UNIT
+                    )
+                )
+                it.token = bCryptPasswordEncoder.encode(token)
+            }
+        }
+
+        emailService.sendPasswordResetEmail(userAccount.get().emailPasswordAuth?.email!!, token)
+
+        return ResponseEntity(HttpStatus.OK)
     }
 
     companion object : KLogging()

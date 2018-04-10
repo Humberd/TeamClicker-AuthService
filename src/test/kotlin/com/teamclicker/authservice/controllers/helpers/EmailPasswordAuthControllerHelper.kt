@@ -4,6 +4,7 @@ import com.teamclicker.authservice.controllers.helpers.HttpConstants.DAVE_ADMIN
 import com.teamclicker.authservice.dao.Role
 import com.teamclicker.authservice.dao.UserRoleDAO
 import com.teamclicker.authservice.dto.EPChangePasswordDTO
+import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
 import com.teamclicker.authservice.dto.EPSignInDTO
 import com.teamclicker.authservice.dto.EPSignUpDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
@@ -45,9 +46,12 @@ class EmailPasswordAuthControllerHelper(
         }
 
     fun changePassword() = ChangePasswordEndpointBuilder()
+    fun sendPasswordResetEmail() = SendPasswordResetEmailBuilder()
+
+    /**************************************************************************/
 
     inner class SignUpEndpointBuilder :
-        EndpointBuilder<SignUpEndpointBuilder, EPSignUpDTO, Void>(Void::class.java, http) {
+        EndpointBuilder<SignUpEndpointBuilder, EPSignUpDTO, String>(String::class.java, http) {
         var user: UserAccountMock? = null
 
         override fun with(user: UserAccountMock?): SignUpEndpointBuilder {
@@ -83,7 +87,7 @@ class EmailPasswordAuthControllerHelper(
     }
 
     inner class SignInEndpointBuilder :
-        EndpointBuilder<SignInEndpointBuilder, EPSignInDTO, Void>(Void::class.java, http) {
+        EndpointBuilder<SignInEndpointBuilder, EPSignInDTO, String>(String::class.java, http) {
         override fun with(user: UserAccountMock?): SignInEndpointBuilder {
             sending(user?.toEmailPasswordSignIn())
             return this
@@ -102,8 +106,8 @@ class EmailPasswordAuthControllerHelper(
     }
 
     inner class ChangePasswordEndpointBuilder :
-        EndpointBuilder<ChangePasswordEndpointBuilder, EPChangePasswordDTO, Void>(
-            Void::class.java,
+        EndpointBuilder<ChangePasswordEndpointBuilder, EPChangePasswordDTO, String>(
+            String::class.java,
             http
         ) {
 
@@ -117,5 +121,21 @@ class EmailPasswordAuthControllerHelper(
                 responseBodyType
             )
         }
+    }
+
+    inner class SendPasswordResetEmailBuilder :
+        EndpointBuilder<SendPasswordResetEmailBuilder, EPSendPasswordResetEmailDTO, String>(String::class.java, http) {
+
+        override fun <T> build(
+            httpEntity: HttpEntity<EPSendPasswordResetEmailDTO>,
+            responseBodyType: Class<T>
+        ): ResponseEntity<T> {
+            return http.postForEntity(
+                "/api/auth/emailPassword/sendPasswordResetEmail",
+                httpEntity,
+                responseBodyType
+            )
+        }
+
     }
 }

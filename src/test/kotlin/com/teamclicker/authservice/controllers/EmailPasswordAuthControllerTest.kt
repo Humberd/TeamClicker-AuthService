@@ -5,9 +5,12 @@ package com.teamclicker.authservice.controllers
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.controllers.helpers.EmailPasswordAuthControllerHelper
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
+import com.teamclicker.authservice.controllers.helpers.HttpConstants.ANONYMOUS
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
 import com.teamclicker.authservice.dto.EPChangePasswordDTO
+import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
+import com.teamclicker.authservice.services.EmailService
 import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -17,6 +20,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
@@ -24,6 +28,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class EmailPasswordAuthControllerTest {
+    @MockBean
+    lateinit var emailService: EmailService
     @Autowired
     lateinit var userAccountRepository: UserAccountRepository
     @Autowired
@@ -260,5 +266,104 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.UNAUTHORIZED, it.statusCode)
                 }
         }
+    }
+
+    @Nested
+    inner class SendPasswordResetEmail {
+        @BeforeEach
+        fun setUp() {
+            userAccountRepository.deleteAll()
+        }
+
+        @Test
+        fun `should send email as ANONYMOUS`() {
+            authHelper.signUp(ALICE)
+
+            val body = EPSendPasswordResetEmailDTO().also {
+                it.email = ALICE.email?.toLowerCase()
+            }
+            authHelper.sendPasswordResetEmail()
+                .with(ANONYMOUS)
+                .sending(body)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertEquals(null, it.body)
+                }
+
+            val aliceAccount = userAccountRepository.findByEmail(ALICE.email?.toLowerCase()!!).get()
+            assert(aliceAccount.emailPasswordAuth?.passwordReset?.token?.length!! > 0)
+        }
+
+        @Test
+        fun `should send email as ANONYMOUS and override previously saved token`() {
+            authHelper.signUp(ALICE)
+
+            var body = EPSendPasswordResetEmailDTO().also {
+                it.email = ALICE.email?.toLowerCase()
+            }
+            authHelper.sendPasswordResetEmail()
+                .with(ANONYMOUS)
+                .sending(body)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertEquals(null, it.body)
+                }
+
+            var aliceAccount = userAccountRepository.findByEmail(ALICE.email?.toLowerCase()!!).get()
+            val token1 = aliceAccount.emailPasswordAuth?.passwordReset?.token!!
+            assert(token1.length > 0)
+
+            body = EPSendPasswordResetEmailDTO().also {
+                it.email = ALICE.email?.toLowerCase()
+            }
+            authHelper.sendPasswordResetEmail()
+                .with(ANONYMOUS)
+                .sending(body)
+                .expectSuccess()
+                .also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                    assertEquals(null, it.body)
+                }
+            aliceAccount = userAccountRepository.findByEmail(ALICE.email?.toLowerCase()!!).get()
+            val token2 = aliceAccount.emailPasswordAuth?.passwordReset?.token!!
+            assert(token2.length > 0)
+
+            assertNotEquals(token1, token2)
+        }
+
+        @Test
+        fun `should not send email when requesting as USER`() {
+            authHelper.signUp(ALICE)
+
+            val body = EPSendPasswordResetEmailDTO().also {
+                it.email = ALICE.email?.toLowerCase()
+            }
+            authHelper.sendPasswordResetEmail()
+                .with(ALICE)
+                .sending(body)
+                .expectError()
+                .also {
+                    assertEquals(HttpStatus.valueOf(403), it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not send email when account with email does not exist`() {
+            authHelper.signUp(ALICE)
+
+            val body = EPSendPasswordResetEmailDTO().also {
+                it.email = "notExisting@mail.com"
+            }
+            authHelper.sendPasswordResetEmail()
+                .with(ANONYMOUS)
+                .sending(body)
+                .expectError()
+                .also {
+                    assertEquals(HttpStatus.valueOf(411), it.statusCode)
+                }
+        }
+
     }
 }
