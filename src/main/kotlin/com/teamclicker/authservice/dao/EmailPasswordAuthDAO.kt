@@ -30,6 +30,10 @@ class EmailPasswordAuthDAO {
     @Column(name = "password", nullable = false)
     var password: String? = null
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true, optional = true)
+    @JoinColumn(name = "passwordResetId", nullable = true)
+    var passwordReset: PasswordResetDAO? = null
+
     @PrePersist
     protected fun onCreate() {
         createdAt = Date()

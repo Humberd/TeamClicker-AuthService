@@ -1,22 +1,22 @@
 package com.teamclicker.authservice.testmodels
 
 import com.teamclicker.authservice.dao.EmailPasswordAuthDAO
-import com.teamclicker.authservice.dto.EmailPasswordSignInDTO
-import com.teamclicker.authservice.dto.EmailPasswordSignUpDTO
+import com.teamclicker.authservice.dto.EPSignInDTO
+import com.teamclicker.authservice.dto.EPSignUpDTO
 
 data class UserAccountMock(
     var email: String?,
     var password: String?
 ) {
-    fun toEmailPasswordSignUp(): EmailPasswordSignUpDTO {
-        return EmailPasswordSignUpDTO().also {
+    fun toEmailPasswordSignUp(): EPSignUpDTO {
+        return EPSignUpDTO().also {
             it.email = email
             it.password = password
         }
     }
 
-    fun toEmailPasswordSignIn(): EmailPasswordSignInDTO {
-        return EmailPasswordSignInDTO().also {
+    fun toEmailPasswordSignIn(): EPSignInDTO {
+        return EPSignInDTO().also {
             it.email = email
             it.password = password
         }

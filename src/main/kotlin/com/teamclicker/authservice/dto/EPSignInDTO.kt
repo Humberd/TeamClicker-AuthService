@@ -2,7 +2,7 @@ package com.teamclicker.authservice.dto
 
 import javax.validation.constraints.NotBlank
 
-class EmailPasswordSignInDTO {
+class EPSignInDTO {
     @NotBlank
     var email: String? = null
 

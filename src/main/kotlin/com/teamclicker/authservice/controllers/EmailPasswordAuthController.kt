@@ -4,14 +4,15 @@ import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.dao.EmailPasswordAuthDAO
 import com.teamclicker.authservice.dao.UserAccountDAO
 import com.teamclicker.authservice.dao.UserRoleDAO
-import com.teamclicker.authservice.dto.EmailPasswordChangePasswordDTO
-import com.teamclicker.authservice.dto.EmailPasswordSignInDTO
-import com.teamclicker.authservice.dto.EmailPasswordSignUpDTO
+import com.teamclicker.authservice.dto.EPChangePasswordDTO
+import com.teamclicker.authservice.dto.EPSignInDTO
+import com.teamclicker.authservice.dto.EPSignUpDTO
 import com.teamclicker.authservice.exceptions.EntityAlreadyExistsException
 import com.teamclicker.authservice.exceptions.InvalidCredentialsException
 import com.teamclicker.authservice.exceptions.InvalidRequestBodyException
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.dao.AuthenticationMethod
+import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
 import com.teamclicker.authservice.security.JWTData
 import com.teamclicker.authservice.security.JWTHelper
 import io.swagger.annotations.ApiOperation
@@ -25,6 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.util.*
 import javax.validation.Valid
 
 @CrossOrigin
@@ -54,7 +56,7 @@ class EmailPasswordAuthController(
     @PreAuthorize("isAnonymous()")
     @Transactional
     @PostMapping("/signUp")
-    fun signUp(@RequestBody @Valid body: EmailPasswordSignUpDTO): ResponseEntity<Void> {
+    fun signUp(@RequestBody @Valid body: EPSignUpDTO): ResponseEntity<Void> {
         val userExists = userAccountRepository.existsByEmail(body.email?.toLowerCase()!!)
         if (userExists) {
             throw EntityAlreadyExistsException("User with this email already exists")
@@ -91,7 +93,7 @@ class EmailPasswordAuthController(
     )
     @PreAuthorize("isAnonymous()")
     @PostMapping("/signIn")
-    fun signIn(@RequestBody @Valid body: EmailPasswordSignInDTO): ResponseEntity<Void> {
+    fun signIn(@RequestBody @Valid body: EPSignInDTO): ResponseEntity<Void> {
         val userAccount = userAccountRepository.findByEmail(body.email!!.toLowerCase())
         if (!userAccount.isPresent) {
             logger.trace { "User not found" }
@@ -124,7 +126,7 @@ class EmailPasswordAuthController(
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/changePassword")
     fun changePassword(
-        @RequestBody @Valid body: EmailPasswordChangePasswordDTO,
+        @RequestBody @Valid body: EPChangePasswordDTO,
         jwtData: JWTData
     ): ResponseEntity<Void> {
         if (body.oldPassword == body.newPassword) {
@@ -153,6 +155,27 @@ class EmailPasswordAuthController(
         userAccountRepository.save(userAccount.get())
 
         return ResponseEntity(HttpStatus.OK)
+    }
+
+    @ApiOperation(
+        value = "Sends email with Reset Password link", notes = """
+Only ANONYMOUS users can request reset password email
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(code = 200, message = "Reset Password email sent successfully"),
+            ApiResponse(code = 400, message = "Invalid request body"),
+            ApiResponse(code = 403, message = "Cannot reset password of authenticated user"),
+            ApiResponse(code = 411, message = "User does not exist")
+        ]
+    )
+    @PreAuthorize("isAnonymous()")
+    @Transactional
+    @PostMapping("/sendPasswordResetEmail")
+    fun sendPasswordResetEmail(@RequestBody @Valid body: EPSendPasswordResetEmailDTO) {
+
+        UUID.randomUUID().toString()
     }
 
     companion object : KLogging()

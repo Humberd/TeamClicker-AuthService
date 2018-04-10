@@ -5,7 +5,7 @@ import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
-class EmailPasswordSignUpDTO {
+class EPSignUpDTO {
     @NotBlank
     @Email
     var email: String? = null

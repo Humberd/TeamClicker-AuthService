@@ -186,7 +186,7 @@ internal class UserAccountRepositoryTest {
             val now = Instant.now()
 
             val aliceAccount = repositoryHelper.add(ALICE)
-            aliceAccount.passwordReset = PasswordResetDAO().also {
+            aliceAccount.emailPasswordAuth?.passwordReset = PasswordResetDAO().also {
                 it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
                 it.token = "aabbcc"
             }
@@ -206,7 +206,7 @@ internal class UserAccountRepositoryTest {
             val now = Instant.now()
 
             val aliceAccount = repositoryHelper.add(ALICE)
-            aliceAccount.passwordReset = PasswordResetDAO().also {
+            aliceAccount.emailPasswordAuth?.passwordReset = PasswordResetDAO().also {
                 it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
                 it.token = "aabbcc"
             }
@@ -226,7 +226,7 @@ internal class UserAccountRepositoryTest {
             val now = Instant.now()
 
             val aliceAccount = repositoryHelper.add(ALICE)
-            aliceAccount.passwordReset = PasswordResetDAO().also {
+            aliceAccount.emailPasswordAuth?.passwordReset = PasswordResetDAO().also {
                 it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
                 it.token = "aabbcc"
             }
@@ -246,7 +246,7 @@ internal class UserAccountRepositoryTest {
             val now = Instant.now()
 
             val aliceAccount = repositoryHelper.add(ALICE)
-            aliceAccount.passwordReset = PasswordResetDAO().also {
+            aliceAccount.emailPasswordAuth?.passwordReset = PasswordResetDAO().also {
                 it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
                 it.token = "aabbcc"
             }
@@ -267,11 +267,11 @@ internal class UserAccountRepositoryTest {
 
             val aliceAccount = repositoryHelper.add(ALICE)
             val bobAccount = repositoryHelper.add(BOB)
-            aliceAccount.passwordReset = PasswordResetDAO().also {
+            aliceAccount.emailPasswordAuth?.passwordReset = PasswordResetDAO().also {
                 it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
                 it.token = "aabbcc"
             }
-            bobAccount.passwordReset = PasswordResetDAO().also {
+            bobAccount.emailPasswordAuth?.passwordReset = PasswordResetDAO().also {
                 it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
                 it.token = "xxyyzz"
             }

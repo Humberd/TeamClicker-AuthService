@@ -4,7 +4,7 @@ import com.teamclicker.authservice.Constants
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
-class EmailPasswordChangePasswordDTO {
+class EPChangePasswordDTO {
     @NotBlank
     var oldPassword: String? = null
 

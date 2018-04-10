@@ -103,6 +103,11 @@ Only ADMIN can undelete any user account
         return ResponseEntity(HttpStatus.OK)
     }
 
+    @ApiOperation(
+        value = "Updates user roles", notes = """
+Only ADMIN can update any user roles
+        """
+    )
     @ApiResponses(
         value = [
             ApiResponse(code = 200, message = "Roles changed successfully"),

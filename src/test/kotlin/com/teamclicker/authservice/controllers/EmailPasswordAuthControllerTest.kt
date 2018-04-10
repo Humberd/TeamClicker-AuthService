@@ -6,7 +6,7 @@ import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.controllers.helpers.EmailPasswordAuthControllerHelper
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
-import com.teamclicker.authservice.dto.EmailPasswordChangePasswordDTO
+import com.teamclicker.authservice.dto.EPChangePasswordDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
 import org.junit.jupiter.api.Assertions.*
@@ -210,7 +210,7 @@ internal class EmailPasswordAuthControllerTest {
         fun `should changePassword`() {
             authHelper.signUp(ALICE)
 
-            val body = EmailPasswordChangePasswordDTO().also {
+            val body = EPChangePasswordDTO().also {
                 it.oldPassword = ALICE.password
                 it.newPassword = "newAlicePassword"
             }
@@ -233,7 +233,7 @@ internal class EmailPasswordAuthControllerTest {
         fun `should not changePassword when new password is the same as the old one`() {
             authHelper.signUp(ALICE)
 
-            val body = EmailPasswordChangePasswordDTO().also {
+            val body = EPChangePasswordDTO().also {
                 it.oldPassword = ALICE.password
                 it.newPassword = ALICE.password
             }
@@ -249,7 +249,7 @@ internal class EmailPasswordAuthControllerTest {
         fun `should not changePassword when old password is invalid`() {
             authHelper.signUp(ALICE)
 
-            val body = EmailPasswordChangePasswordDTO().also {
+            val body = EPChangePasswordDTO().also {
                 it.oldPassword = "invalidPassword"
                 it.newPassword = "newAlicePassword"
             }

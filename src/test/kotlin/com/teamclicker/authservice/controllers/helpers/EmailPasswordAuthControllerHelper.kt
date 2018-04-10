@@ -3,9 +3,9 @@ package com.teamclicker.authservice.controllers.helpers
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.DAVE_ADMIN
 import com.teamclicker.authservice.dao.Role
 import com.teamclicker.authservice.dao.UserRoleDAO
-import com.teamclicker.authservice.dto.EmailPasswordChangePasswordDTO
-import com.teamclicker.authservice.dto.EmailPasswordSignInDTO
-import com.teamclicker.authservice.dto.EmailPasswordSignUpDTO
+import com.teamclicker.authservice.dto.EPChangePasswordDTO
+import com.teamclicker.authservice.dto.EPSignInDTO
+import com.teamclicker.authservice.dto.EPSignUpDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
 import com.teamclicker.authservice.testmodels.UserAccountMock
@@ -47,7 +47,7 @@ class EmailPasswordAuthControllerHelper(
     fun changePassword() = ChangePasswordEndpointBuilder()
 
     inner class SignUpEndpointBuilder :
-        EndpointBuilder<SignUpEndpointBuilder, EmailPasswordSignUpDTO, Void>(Void::class.java, http) {
+        EndpointBuilder<SignUpEndpointBuilder, EPSignUpDTO, Void>(Void::class.java, http) {
         var user: UserAccountMock? = null
 
         override fun with(user: UserAccountMock?): SignUpEndpointBuilder {
@@ -57,7 +57,7 @@ class EmailPasswordAuthControllerHelper(
         }
 
         override fun <T> build(
-            httpEntity: HttpEntity<EmailPasswordSignUpDTO>,
+            httpEntity: HttpEntity<EPSignUpDTO>,
             responseBodyType: Class<T>
         ): ResponseEntity<T> {
             val response = http.postForEntity(
@@ -83,14 +83,14 @@ class EmailPasswordAuthControllerHelper(
     }
 
     inner class SignInEndpointBuilder :
-        EndpointBuilder<SignInEndpointBuilder, EmailPasswordSignInDTO, Void>(Void::class.java, http) {
+        EndpointBuilder<SignInEndpointBuilder, EPSignInDTO, Void>(Void::class.java, http) {
         override fun with(user: UserAccountMock?): SignInEndpointBuilder {
             sending(user?.toEmailPasswordSignIn())
             return this
         }
 
         override fun <T> build(
-            httpEntity: HttpEntity<EmailPasswordSignInDTO>,
+            httpEntity: HttpEntity<EPSignInDTO>,
             responseBodyType: Class<T>
         ): ResponseEntity<T> {
             return http.postForEntity(
@@ -102,13 +102,13 @@ class EmailPasswordAuthControllerHelper(
     }
 
     inner class ChangePasswordEndpointBuilder :
-        EndpointBuilder<ChangePasswordEndpointBuilder, EmailPasswordChangePasswordDTO, Void>(
+        EndpointBuilder<ChangePasswordEndpointBuilder, EPChangePasswordDTO, Void>(
             Void::class.java,
             http
         ) {
 
         override fun <T> build(
-            httpEntity: HttpEntity<EmailPasswordChangePasswordDTO>,
+            httpEntity: HttpEntity<EPChangePasswordDTO>,
             responseBodyType: Class<T>
         ): ResponseEntity<T> {
             return http.postForEntity(
