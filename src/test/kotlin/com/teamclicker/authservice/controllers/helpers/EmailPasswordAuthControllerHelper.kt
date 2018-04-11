@@ -3,10 +3,7 @@ package com.teamclicker.authservice.controllers.helpers
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.DAVE_ADMIN
 import com.teamclicker.authservice.dao.Role
 import com.teamclicker.authservice.dao.UserRoleDAO
-import com.teamclicker.authservice.dto.EPChangePasswordDTO
-import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
-import com.teamclicker.authservice.dto.EPSignInDTO
-import com.teamclicker.authservice.dto.EPSignUpDTO
+import com.teamclicker.authservice.dto.*
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
 import com.teamclicker.authservice.testmodels.UserAccountMock
@@ -47,6 +44,7 @@ class EmailPasswordAuthControllerHelper(
 
     fun changePassword() = ChangePasswordEndpointBuilder()
     fun sendPasswordResetEmail() = SendPasswordResetEmailBuilder()
+    fun resetPassword() = ResetPasswordBuilder()
 
     /**************************************************************************/
 
@@ -106,10 +104,7 @@ class EmailPasswordAuthControllerHelper(
     }
 
     inner class ChangePasswordEndpointBuilder :
-        EndpointBuilder<ChangePasswordEndpointBuilder, EPChangePasswordDTO, String>(
-            String::class.java,
-            http
-        ) {
+        EndpointBuilder<ChangePasswordEndpointBuilder, EPChangePasswordDTO, String>(String::class.java, http) {
 
         override fun <T> build(
             httpEntity: HttpEntity<EPChangePasswordDTO>,
@@ -132,6 +127,21 @@ class EmailPasswordAuthControllerHelper(
         ): ResponseEntity<T> {
             return http.postForEntity(
                 "/api/auth/emailPassword/sendPasswordResetEmail",
+                httpEntity,
+                responseBodyType
+            )
+        }
+
+    }
+
+    inner class ResetPasswordBuilder :
+        EndpointBuilder<ResetPasswordBuilder, EPResetPasswordDTO, String>(String::class.java, http) {
+        override fun <T> build(
+            httpEntity: HttpEntity<EPResetPasswordDTO>,
+            responseBodyType: Class<T>
+        ): ResponseEntity<T> {
+            return http.postForEntity(
+                "/api/auth/emailPassword/resetPassword",
                 httpEntity,
                 responseBodyType
             )

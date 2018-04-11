@@ -5,7 +5,10 @@ import javax.persistence.*
 import javax.validation.constraints.NotNull
 
 @Entity
-@Table(name = "passwordReset")
+@Table(
+    name = "passwordReset",
+    indexes = [Index(name = "validTokenIndex", columnList = "expiresAt,token")]
+)
 class PasswordResetDAO {
     @Id
     @Column(name = "id", nullable = false, updatable = false)

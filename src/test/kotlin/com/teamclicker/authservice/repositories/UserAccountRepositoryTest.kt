@@ -182,7 +182,7 @@ internal class UserAccountRepositoryTest {
         }
 
         @Test
-        fun `should return true when there is a token expiring after currentDate`() {
+        fun `should find user when there is a token expiring after currentDate`() {
             val now = Instant.now()
 
             val aliceAccount = repositoryHelper.add(ALICE)
@@ -192,17 +192,16 @@ internal class UserAccountRepositoryTest {
             }
             userAccountRepository.save(aliceAccount)
 
-            userAccountRepository.existsByValidPasswordResetToken(
-                emailLc = aliceAccount.emailPasswordAuth?.emailLc!!,
+            userAccountRepository.findByValidPasswordResetToken(
                 token = "aabbcc",
                 currentDate = Date.from(now)
             ).also {
-                assertTrue(it)
+                assertTrue(it.isPresent)
             }
         }
 
         @Test
-        fun `should return true when there is a token expiring exactly at currentDate`() {
+        fun `should find user when there is a token expiring exactly at currentDate`() {
             val now = Instant.now()
 
             val aliceAccount = repositoryHelper.add(ALICE)
@@ -212,17 +211,16 @@ internal class UserAccountRepositoryTest {
             }
             userAccountRepository.save(aliceAccount)
 
-            userAccountRepository.existsByValidPasswordResetToken(
-                emailLc = aliceAccount.emailPasswordAuth?.emailLc!!,
+            userAccountRepository.findByValidPasswordResetToken(
                 token = "aabbcc",
                 currentDate = Date.from(now.plus(1, ChronoUnit.DAYS))
             ).also {
-                assertTrue(it)
+                assertTrue(it.isPresent)
             }
         }
 
         @Test
-        fun `should return false when there is a token expired before currentDate`() {
+        fun `should not find user when there is a token expired before currentDate`() {
             val now = Instant.now()
 
             val aliceAccount = repositoryHelper.add(ALICE)
@@ -232,17 +230,16 @@ internal class UserAccountRepositoryTest {
             }
             userAccountRepository.save(aliceAccount)
 
-            userAccountRepository.existsByValidPasswordResetToken(
-                emailLc = aliceAccount.emailPasswordAuth?.emailLc!!,
+            userAccountRepository.findByValidPasswordResetToken(
                 token = "aabbcc",
                 currentDate = Date.from(now.plus(2, ChronoUnit.DAYS))
             ).also {
-                assertFalse(it)
+                assertFalse(it.isPresent)
             }
         }
 
         @Test
-        fun `should retrn false when there is no token matching`() {
+        fun `should not find user when there is no token matching`() {
             val now = Instant.now()
 
             val aliceAccount = repositoryHelper.add(ALICE)
@@ -252,37 +249,11 @@ internal class UserAccountRepositoryTest {
             }
             userAccountRepository.save(aliceAccount)
 
-            userAccountRepository.existsByValidPasswordResetToken(
-                emailLc = aliceAccount.emailPasswordAuth?.emailLc!!,
+            userAccountRepository.findByValidPasswordResetToken(
                 token = "aabbcceeff",
                 currentDate = Date.from(now)
             ).also {
-                assertFalse(it)
-            }
-        }
-
-        @Test
-        fun `should return false when there is valid token, but for another user`() {
-            val now = Instant.now()
-
-            val aliceAccount = repositoryHelper.add(ALICE)
-            val bobAccount = repositoryHelper.add(BOB)
-            aliceAccount.emailPasswordAuth?.passwordReset = PasswordResetDAO().also {
-                it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
-                it.token = "aabbcc"
-            }
-            bobAccount.emailPasswordAuth?.passwordReset = PasswordResetDAO().also {
-                it.expiresAt = Date.from(now.plus(1, ChronoUnit.DAYS))
-                it.token = "xxyyzz"
-            }
-            userAccountRepository.saveAll(listOf(aliceAccount, bobAccount))
-
-            userAccountRepository.existsByValidPasswordResetToken(
-                emailLc = aliceAccount.emailPasswordAuth?.emailLc!!,
-                token = "xxyyzz",
-                currentDate = Date.from(now)
-            ).also {
-                assertFalse(it)
+                assertFalse(it.isPresent)
             }
         }
     }

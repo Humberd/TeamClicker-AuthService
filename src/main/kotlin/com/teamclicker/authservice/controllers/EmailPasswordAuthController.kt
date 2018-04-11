@@ -4,10 +4,7 @@ import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.Constants.RESET_PASSWORD_TOKEN_EXPIRATION_TIME_UNIT
 import com.teamclicker.authservice.Constants.RESET_PASSWORD_TOKEN_EXPIRATION_TIME_VALUE
 import com.teamclicker.authservice.dao.*
-import com.teamclicker.authservice.dto.EPChangePasswordDTO
-import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
-import com.teamclicker.authservice.dto.EPSignInDTO
-import com.teamclicker.authservice.dto.EPSignUpDTO
+import com.teamclicker.authservice.dto.*
 import com.teamclicker.authservice.exceptions.EntityAlreadyExistsException
 import com.teamclicker.authservice.exceptions.EntityDoesNotExistException
 import com.teamclicker.authservice.exceptions.InvalidCredentialsException
@@ -170,7 +167,7 @@ Only ANONYMOUS users can request reset password email
         value = [
             ApiResponse(code = 200, message = "Reset Password email sent successfully"),
             ApiResponse(code = 400, message = "Invalid request body"),
-            ApiResponse(code = 403, message = "Cannot reset password of authenticated user"),
+            ApiResponse(code = 403, message = "Cannot send email of authenticated user"),
             ApiResponse(code = 411, message = "User does not exist")
         ]
     )
@@ -192,12 +189,27 @@ Only ANONYMOUS users can request reset password email
                         RESET_PASSWORD_TOKEN_EXPIRATION_TIME_UNIT
                     )
                 )
-                it.token = bCryptPasswordEncoder.encode(token)
+                it.token = token
             }
         }
 
         emailService.sendPasswordResetEmail(userAccount.get().emailPasswordAuth?.email!!, token)
 
+        return ResponseEntity(HttpStatus.OK)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(code = 200, message = "Password resetted successfully"),
+            ApiResponse(code = 400, message = "Invalid request body"),
+            ApiResponse(code = 403, message = "Cannot reset password of authenticated user"),
+            ApiResponse(code = 411, message = "Invalid token")
+        ]
+    )
+    @PreAuthorize("isAnonymous()")
+    @Transactional
+    @PostMapping("/resetPassword")
+    fun resetPassword(@RequestBody @Valid body: EPResetPasswordDTO): ResponseEntity<Void> {
         return ResponseEntity(HttpStatus.OK)
     }
 

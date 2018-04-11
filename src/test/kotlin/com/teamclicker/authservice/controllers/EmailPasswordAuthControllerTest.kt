@@ -2,12 +2,17 @@
 
 package com.teamclicker.authservice.controllers
 
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.whenever
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
+import com.teamclicker.authservice.Constants.MIN_PASSWORD_SIZE
 import com.teamclicker.authservice.controllers.helpers.EmailPasswordAuthControllerHelper
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.ANONYMOUS
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
+import com.teamclicker.authservice.controllers.helpers.HttpConstants.DAVE_ADMIN
 import com.teamclicker.authservice.dto.EPChangePasswordDTO
+import com.teamclicker.authservice.dto.EPResetPasswordDTO
 import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.services.EmailService
@@ -23,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
+
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -362,6 +368,195 @@ internal class EmailPasswordAuthControllerTest {
                 .expectError()
                 .also {
                     assertEquals(HttpStatus.valueOf(411), it.statusCode)
+                }
+        }
+
+    }
+
+    @Nested
+    inner class ResetPassword {
+        var emailServiceEmail: String? = null
+        var emailServiceToken: String? = null
+
+        @BeforeEach
+        fun setUp() {
+            userAccountRepository.deleteAll()
+
+            whenever(emailService.sendPasswordResetEmail(any(), any())).then {
+                emailServiceEmail = it.arguments[0] as String?
+                emailServiceToken = it.arguments[1] as String?
+                return@then null
+            }
+        }
+
+        @Test
+        fun `should reset a password`() {
+            authHelper.signUp(ALICE)
+
+            val body1 = EPSendPasswordResetEmailDTO().also {
+                it.email = ALICE.email?.toLowerCase()
+            }
+            authHelper.sendPasswordResetEmail()
+                .with(ANONYMOUS)
+                .sending(body1)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+
+            assertEquals(emailServiceEmail, ALICE.email?.toLowerCase())
+
+            val body2 = EPResetPasswordDTO().also {
+                it.newPassword = "admin123"
+                it.token = emailServiceToken
+            }
+            authHelper.resetPassword()
+                .with(ANONYMOUS)
+                .sending(body2)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+
+            authHelper.signIn()
+                .with(ALICE.also { it.password = "admin123" })
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not reset a password when provided token is invalid`() {
+            authHelper.signUp(ALICE)
+
+            val body1 = EPSendPasswordResetEmailDTO().also {
+                it.email = ALICE.email?.toLowerCase()
+            }
+            authHelper.sendPasswordResetEmail()
+                .with(ANONYMOUS)
+                .sending(body1)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+
+            assertEquals(emailServiceEmail, ALICE.email?.toLowerCase())
+
+            val body2 = EPResetPasswordDTO().also {
+                it.newPassword = "admin123"
+                it.token = "defenitelyInvalidToken"
+            }
+            authHelper.resetPassword()
+                .with(ANONYMOUS)
+                .sending(body2)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.valueOf(411), it.statusCode)
+                }
+
+            authHelper.signIn()
+                .with(ALICE.also { it.password = "admin123" })
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.valueOf(401), it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not reset password when requesting as USER`() {
+            authHelper.signUp(ALICE)
+
+            val body1 = EPSendPasswordResetEmailDTO().also {
+                it.email = ALICE.email?.toLowerCase()
+            }
+            authHelper.sendPasswordResetEmail()
+                .with(ANONYMOUS)
+                .sending(body1)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+
+            assertEquals(emailServiceEmail, ALICE.email?.toLowerCase())
+
+            val body2 = EPResetPasswordDTO().also {
+                it.newPassword = "admin123"
+                it.token = emailServiceToken
+            }
+            authHelper.resetPassword()
+                .with(ALICE)
+                .sending(body2)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.valueOf(403), it.statusCode)
+                }
+
+            authHelper.signIn()
+                .with(ALICE.also { it.password = "admin123" })
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.valueOf(401), it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not reset password when requesting as ADMIN`() {
+            authHelper.signUp(ALICE)
+            authHelper.signUp(DAVE_ADMIN)
+
+            val body1 = EPSendPasswordResetEmailDTO().also {
+                it.email = ALICE.email?.toLowerCase()
+            }
+            authHelper.sendPasswordResetEmail()
+                .with(ANONYMOUS)
+                .sending(body1)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+
+            assertEquals(emailServiceEmail, ALICE.email?.toLowerCase())
+
+            val body2 = EPResetPasswordDTO().also {
+                it.newPassword = "admin123"
+                it.token = emailServiceToken
+            }
+            authHelper.resetPassword()
+                .with(DAVE_ADMIN)
+                .sending(body2)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.valueOf(403), it.statusCode)
+                }
+
+            authHelper.signIn()
+                .with(ALICE.also { it.password = "admin123" })
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.valueOf(401), it.statusCode)
+                }
+        }
+
+        @Test
+        fun `should not reset password when new password is too short`() {
+            authHelper.signUp(ALICE)
+
+            val body1 = EPSendPasswordResetEmailDTO().also {
+                it.email = ALICE.email?.toLowerCase()
+            }
+            authHelper.sendPasswordResetEmail()
+                .with(ANONYMOUS)
+                .sending(body1)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+
+            assertEquals(emailServiceEmail, ALICE.email?.toLowerCase())
+
+            val body2 = EPResetPasswordDTO().also {
+                it.newPassword = "admin123".substring(0..MIN_PASSWORD_SIZE)
+                it.token = emailServiceToken
+            }
+            authHelper.resetPassword()
+                .with(ANONYMOUS)
+                .sending(body2)
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
+                }
+
+            authHelper.signIn()
+                .with(ALICE.also { it.password = body2.newPassword })
+                .expectSuccess().also {
+                    assertEquals(HttpStatus.OK, it.statusCode)
                 }
         }
 

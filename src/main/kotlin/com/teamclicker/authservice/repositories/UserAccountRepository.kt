@@ -1,7 +1,6 @@
 package com.teamclicker.authservice.repositories
 
 import com.teamclicker.authservice.dao.UserAccountDAO
-import org.intellij.lang.annotations.Language
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -52,18 +51,16 @@ interface UserAccountRepository : JpaRepository<UserAccountDAO, Long> {
 
     @Query(
         """
-            select case when(count (user) > 0) then true else false end
+            select user
             from UserAccountDAO as user
-            where user.emailPasswordAuth.emailLc = :emailLc
-            and user.emailPasswordAuth.passwordReset.token = :token
+            where user.emailPasswordAuth.passwordReset.token = :token
             and user.emailPasswordAuth.passwordReset.expiresAt >= :currentDate
             and user.deletion is null
         """
     )
-    fun existsByValidPasswordResetToken(
-        @Param("emailLc") emailLc: String,
+    fun findByValidPasswordResetToken(
         @Param("token") token: String,
         @Param("currentDate") currentDate: Date
-    ): Boolean
+    ): Optional<UserAccountDAO>
 
 }
