@@ -5,6 +5,6 @@ import javax.validation.constraints.NotNull
 
 class AccountUpdateRolesDTO {
     @NotNull
-    @ValidateRoles
+    @field:ValidateRoles
     var roles: Set<String> = emptySet()
 }
