@@ -198,6 +198,12 @@ Only ANONYMOUS users can request reset password email
         return ResponseEntity(HttpStatus.OK)
     }
 
+    @ApiOperation(
+        value = "Resets User password", notes = """
+Resets User password using a valid token (not expired) acquired via email.
+Only ANONYMOUS requester can reset a password.
+        """
+    )
     @ApiResponses(
         value = [
             ApiResponse(code = 200, message = "Password resetted successfully"),
@@ -210,6 +216,16 @@ Only ANONYMOUS users can request reset password email
     @Transactional
     @PostMapping("/resetPassword")
     fun resetPassword(@RequestBody @Valid body: EPResetPasswordDTO): ResponseEntity<Void> {
+        val account = userAccountRepository.findByValidPasswordResetToken(body.token!!, Date())
+        if (!account.isPresent) {
+            throw EntityDoesNotExistException("Invalid token")
+        }
+
+        account.get().also {
+            it.emailPasswordAuth?.password = bCryptPasswordEncoder.encode(body.newPassword)
+            it.emailPasswordAuth?.passwordReset = null
+        }
+
         return ResponseEntity(HttpStatus.OK)
     }
 
