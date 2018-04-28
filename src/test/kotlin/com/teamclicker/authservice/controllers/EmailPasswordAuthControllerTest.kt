@@ -16,6 +16,7 @@ import com.teamclicker.authservice.dto.EPResetPasswordDTO
 import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.services.EmailService
+import com.teamclicker.authservice.services.HashingService
 import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -38,6 +39,8 @@ internal class EmailPasswordAuthControllerTest {
     lateinit var emailService: EmailService
     @Autowired
     lateinit var userAccountRepository: UserAccountRepository
+    @Autowired
+    lateinit var hashingService: HashingService
     @Autowired
     lateinit var jwtExtractorHelper: JwtExtractorHelper
     @Autowired
@@ -276,9 +279,18 @@ internal class EmailPasswordAuthControllerTest {
 
     @Nested
     inner class SendPasswordResetEmail {
+        var emailServiceEmail: String? = null
+        var emailServiceToken: String? = null
+
         @BeforeEach
         fun setUp() {
             userAccountRepository.deleteAll()
+
+            whenever(emailService.sendPasswordResetEmail(any(), any())).then {
+                emailServiceEmail = it.arguments[0] as String?
+                emailServiceToken = it.arguments[1] as String?
+                return@then null
+            }
         }
 
         @Test
@@ -298,7 +310,10 @@ internal class EmailPasswordAuthControllerTest {
                 }
 
             val aliceAccount = userAccountRepository.findByEmail(ALICE.email?.toLowerCase()!!).get()
-            assert(aliceAccount.emailPasswordAuth?.passwordReset?.token?.length!! > 0)
+            assertEquals(
+                hashingService.hashBySHA_256(emailServiceToken!!),
+                aliceAccount.emailPasswordAuth?.passwordReset?.token
+            )
         }
 
         @Test

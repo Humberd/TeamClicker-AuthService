@@ -13,6 +13,7 @@ import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.security.JWTData
 import com.teamclicker.authservice.security.JWTHelper
 import com.teamclicker.authservice.services.EmailService
+import com.teamclicker.authservice.services.HashingService
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
@@ -35,7 +36,8 @@ class EmailPasswordAuthController(
     private val userAccountRepository: UserAccountRepository,
     private val jwtHelper: JWTHelper,
     private val bCryptPasswordEncoder: BCryptPasswordEncoder,
-    private val emailService: EmailService
+    private val emailService: EmailService,
+    private val hashingService: HashingService
 ) {
 
     @ApiOperation(
@@ -189,7 +191,7 @@ Only ANONYMOUS users can request reset password email
                         RESET_PASSWORD_TOKEN_EXPIRATION_TIME_UNIT
                     )
                 )
-                it.token = token
+                it.token = hashingService.hashBySHA_256(token)
             }
         }
 
@@ -216,7 +218,8 @@ Only ANONYMOUS requester can reset a password.
     @Transactional
     @PostMapping("/resetPassword")
     fun resetPassword(@RequestBody @Valid body: EPResetPasswordDTO): ResponseEntity<Void> {
-        val account = userAccountRepository.findByValidPasswordResetToken(body.token!!, Date())
+        val tokenHash = hashingService.hashBySHA_256(body.token!!)
+        val account = userAccountRepository.findByValidPasswordResetToken(tokenHash, Date())
         if (!account.isPresent) {
             throw EntityDoesNotExistException("Invalid token")
         }
