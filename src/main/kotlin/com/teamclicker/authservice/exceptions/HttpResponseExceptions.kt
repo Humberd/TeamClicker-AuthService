@@ -12,10 +12,6 @@ class InvalidRequestBodyException(message: String) : RuntimeException(message)
 @ResponseStatus(HttpStatus.UNAUTHORIZED) // 401
 class InvalidCredentialsException(message: String) : RuntimeException(message)
 
-@ResponseBody()
-@ResponseStatus(HttpStatus.UNAUTHORIZED) // 401
-class PermissionsNotSufficientException(message: String) : RuntimeException(message)
-
 @ResponseBody
 @ResponseStatus(HttpStatus.GONE) // 410
 class EntityAlreadyExistsException(message: String) : RuntimeException(message)

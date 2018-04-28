@@ -11,11 +11,11 @@ class JWTAuthenticationToken(
     }
 
     override fun getCredentials(): Any {
-        return "foobar"
+        return ""
     }
 
     override fun getPrincipal(): Any {
-        return "myprincipal"
+        return ""
     }
 
 }
