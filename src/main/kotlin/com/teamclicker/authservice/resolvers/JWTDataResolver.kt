@@ -21,7 +21,7 @@ class JWTDataResolver : HandlerMethodArgumentResolver {
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?
     ): Any? {
-        if (webRequest.userPrincipal === null ){
+        if (webRequest.userPrincipal === null) {
             return null
         }
         val userPrincipal = webRequest.userPrincipal as JWTAuthenticationToken

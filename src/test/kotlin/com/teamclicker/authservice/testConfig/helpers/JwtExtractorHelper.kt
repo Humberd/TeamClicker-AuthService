@@ -22,7 +22,7 @@ class JwtExtractorHelper(
             .parseClaimsJws(rawToken)
             .getBody()
 
-        val jwtData= claimsToJWTDataMapper.parse(jwtClaims)
+        val jwtData = claimsToJWTDataMapper.parse(jwtClaims)
         return JWTDataTestWrapper(
             jwtData.accountId,
             jwtData.authenticationMethod,

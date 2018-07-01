@@ -1,4 +1,4 @@
-package com.teamclicker.authservice.dao 
+package com.teamclicker.authservice.dao
 
 object Role {
     const val USER = "USER"

@@ -1,7 +1,6 @@
 package com.teamclicker.authservice.testConfig.kafka
 
 import com.teamclicker.authservice.kafka.ALL_KAFKA_TOPICS
-import com.teamclicker.authservice.kafka.dto.PasswordResetEmailKDTO
 import com.teamclicker.authservice.testConfig.extensions.fromJson
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory

@@ -1,5 +1,3 @@
-@file:Suppress("RemoveRedundantBackticks")
-
 package com.teamclicker.authservice.controllers
 
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
@@ -273,7 +271,8 @@ internal class EmailPasswordAuthControllerTest {
                 }
         }
     }
-    companion object: KLogging()
+
+    companion object : KLogging()
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
