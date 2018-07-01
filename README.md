@@ -2,7 +2,6 @@
 
 `docker run --name tc-postgres -e POSTGRES_PASSWORD=admin123 -p 5432:5432 -d postgres`
 
-
 ## Deployment requirements
 
 ### Files
@@ -20,6 +19,7 @@ How to generate keys -> https://stackoverflow.com/a/19387517/4256929
  `admin`
  3. _TC_AUTH_DATABASE_PASSWORD_ - PostgreSQL database user password, for example:
  `admin123`
+ 4. _TC_KAFKA_URL_ - Kafka url, for example: `192.168.99.100:32769`
 
 ## Deployment Testing requirements
 
@@ -38,3 +38,4 @@ How to generate keys -> https://stackoverflow.com/a/19387517/4256929
  `admin`
  3. _TC_AUTH__**_TESTS_**__DATABASE_PASSWORD_ - PostgreSQL database user password, for example:
  `admin123`
+ 4. _TC_KAFKA_URL_ - Kafka url, for example: `192.168.99.100:32769`
