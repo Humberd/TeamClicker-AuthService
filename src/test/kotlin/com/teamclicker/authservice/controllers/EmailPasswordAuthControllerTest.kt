@@ -2,8 +2,6 @@
 
 package com.teamclicker.authservice.controllers
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.whenever
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.Constants.MIN_PASSWORD_SIZE
 import com.teamclicker.authservice.controllers.helpers.EmailPasswordAuthControllerHelper
@@ -16,28 +14,23 @@ import com.teamclicker.authservice.dto.EPResetPasswordDTO
 import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
 import com.teamclicker.authservice.kafka.dto.PasswordResetEmailKDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
-import com.teamclicker.authservice.services.EmailService
 import com.teamclicker.authservice.services.HashingService
-import com.teamclicker.authservice.testConfig.extensions.fromJson
 import com.teamclicker.authservice.testConfig.helpers.JwtExtractorHelper
-import com.teamclicker.authservice.testConfig.kafka.EmbeddedKafkaServer
 import com.teamclicker.authservice.testConfig.kafka.KafkaMockConsumer
+import mu.KLogging
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.kafka.test.rule.KafkaEmbedded
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.util.concurrent.TimeUnit
 
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@EmbeddedKafkaServer
 internal class EmailPasswordAuthControllerTest {
     @Autowired
     lateinit var userAccountRepository: UserAccountRepository
@@ -280,12 +273,12 @@ internal class EmailPasswordAuthControllerTest {
                 }
         }
     }
+    companion object: KLogging()
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class SendPasswordResetEmail {
         lateinit var kafkaMockConsumer: KafkaMockConsumer
-
         @BeforeAll
         fun setUpAll() {
             kafkaMockConsumer = KafkaMockConsumer(kafkaEmbedded)
@@ -342,6 +335,7 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(null, it.body)
                 }
 
+            kafkaMockConsumer.waitForMessage()
             var aliceAccount = userAccountRepository.findByEmail(ALICE.email?.toLowerCase()!!).get()
             val token1 = aliceAccount.emailPasswordAuth?.passwordReset?.token!!
             assert(token1.length > 0)
@@ -357,6 +351,8 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                     assertEquals(null, it.body)
                 }
+
+            kafkaMockConsumer.waitForMessage()
             aliceAccount = userAccountRepository.findByEmail(ALICE.email?.toLowerCase()!!).get()
             val token2 = aliceAccount.emailPasswordAuth?.passwordReset?.token!!
             assert(token2.length > 0)

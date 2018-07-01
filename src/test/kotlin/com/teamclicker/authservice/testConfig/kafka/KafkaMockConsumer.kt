@@ -66,4 +66,8 @@ class KafkaMockConsumer(
         val received = records.poll(10, TimeUnit.SECONDS)
         return received.value().fromJson(type)
     }
+
+    fun waitForMessage() {
+        records.poll(10, TimeUnit.SECONDS)
+    }
 }
