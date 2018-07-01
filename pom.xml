@@ -52,10 +52,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-        </dependency>
 
         <!--CLOUD-->
         <dependency>
@@ -97,7 +93,7 @@
             <version>${kotlin-logging.version}</version>
         </dependency>
 
-        <!--GSON-->
+        <!--JSON-->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -107,6 +103,10 @@
             <groupId>com.github.salomonbrys.kotson</groupId>
             <artifactId>kotson</artifactId>
             <version>${kotson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
         </dependency>
 
         <!--DATABSE-->
