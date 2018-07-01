@@ -1,4 +1,4 @@
-package com.teamclicker.authservice.extensions
+package com.teamclicker.authservice.testConfig.extensions
 
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity

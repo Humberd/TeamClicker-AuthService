@@ -1,8 +1,8 @@
 package com.teamclicker.authservice.controllers.helpers
 
 import com.teamclicker.authservice.dto.AccountUpdateRolesDTO
-import com.teamclicker.authservice.extensions.deleteForEntity
-import com.teamclicker.authservice.extensions.putForEntity
+import com.teamclicker.authservice.testConfig.extensions.deleteForEntity
+import com.teamclicker.authservice.testConfig.extensions.putForEntity
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity
 import org.springframework.http.ResponseEntity

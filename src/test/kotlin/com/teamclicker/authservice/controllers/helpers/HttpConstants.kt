@@ -1,6 +1,6 @@
 package com.teamclicker.authservice.controllers.helpers
 
-import com.teamclicker.authservice.testmodels.UserAccountMock
+import com.teamclicker.authservice.testConfig.models.UserAccountMock
 
 object HttpConstants {
     val ALICE

@@ -1,4 +1,4 @@
-package com.teamclicker.authservice.testhelpers
+package com.teamclicker.authservice.testConfig.models
 
 import com.teamclicker.authservice.dao.AuthenticationMethod
 

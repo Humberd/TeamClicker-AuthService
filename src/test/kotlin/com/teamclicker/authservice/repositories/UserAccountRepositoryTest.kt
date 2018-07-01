@@ -1,11 +1,9 @@
-@file:Suppress("RemoveRedundantBackticks")
-
 package com.teamclicker.authservice.repositories
 
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
 import com.teamclicker.authservice.dao.PasswordResetDAO
-import com.teamclicker.authservice.testhelpers.UserAccountRepositoryHelper
+import com.teamclicker.authservice.testConfig.helpers.UserAccountRepositoryHelper
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -26,7 +24,8 @@ internal class UserAccountRepositoryTest {
     lateinit var repositoryHelper: UserAccountRepositoryHelper
     @BeforeAll
     fun beforeAll() {
-        repositoryHelper = UserAccountRepositoryHelper(userAccountRepository)
+        repositoryHelper =
+                UserAccountRepositoryHelper(userAccountRepository)
     }
 
     @Nested

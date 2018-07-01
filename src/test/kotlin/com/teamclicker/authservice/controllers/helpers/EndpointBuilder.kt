@@ -1,8 +1,8 @@
 package com.teamclicker.authservice.controllers.helpers
 
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
-import com.teamclicker.authservice.testmodels.SpringErrorResponse
-import com.teamclicker.authservice.testmodels.UserAccountMock
+import com.teamclicker.authservice.testConfig.models.SpringErrorResponse
+import com.teamclicker.authservice.testConfig.models.UserAccountMock
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity

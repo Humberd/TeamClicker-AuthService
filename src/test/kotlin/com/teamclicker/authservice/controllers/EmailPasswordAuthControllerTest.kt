@@ -14,29 +14,31 @@ import com.teamclicker.authservice.controllers.helpers.HttpConstants.DAVE_ADMIN
 import com.teamclicker.authservice.dto.EPChangePasswordDTO
 import com.teamclicker.authservice.dto.EPResetPasswordDTO
 import com.teamclicker.authservice.dto.EPSendPasswordResetEmailDTO
+import com.teamclicker.authservice.kafka.dto.PasswordResetEmailKDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.services.EmailService
 import com.teamclicker.authservice.services.HashingService
-import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
+import com.teamclicker.authservice.testConfig.extensions.fromJson
+import com.teamclicker.authservice.testConfig.helpers.JwtExtractorHelper
+import com.teamclicker.authservice.testConfig.kafka.EmbeddedKafkaServer
+import com.teamclicker.authservice.testConfig.kafka.KafkaMockConsumer
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
+import org.springframework.kafka.test.rule.KafkaEmbedded
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.util.concurrent.TimeUnit
 
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@EmbeddedKafkaServer
 internal class EmailPasswordAuthControllerTest {
-    @MockBean
-    lateinit var emailService: EmailService
     @Autowired
     lateinit var userAccountRepository: UserAccountRepository
     @Autowired
@@ -45,6 +47,8 @@ internal class EmailPasswordAuthControllerTest {
     lateinit var jwtExtractorHelper: JwtExtractorHelper
     @Autowired
     lateinit var authHelper: EmailPasswordAuthControllerHelper
+    @Autowired
+    lateinit var kafkaEmbedded: KafkaEmbedded
 
     @Nested
     inner class SignUp {
@@ -278,19 +282,24 @@ internal class EmailPasswordAuthControllerTest {
     }
 
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class SendPasswordResetEmail {
-        var emailServiceEmail: String? = null
-        var emailServiceToken: String? = null
+        lateinit var kafkaMockConsumer: KafkaMockConsumer
+
+        @BeforeAll
+        fun setUpAll() {
+            kafkaMockConsumer = KafkaMockConsumer(kafkaEmbedded)
+        }
 
         @BeforeEach
         fun setUp() {
             userAccountRepository.deleteAll()
+            kafkaMockConsumer.clearRecords()
+        }
 
-            whenever(emailService.sendPasswordResetEmail(any(), any())).then {
-                emailServiceEmail = it.arguments[0] as String?
-                emailServiceToken = it.arguments[1] as String?
-                return@then null
-            }
+        @AfterAll
+        fun tearDown() {
+            kafkaMockConsumer.tearDown()
         }
 
         @Test
@@ -310,8 +319,9 @@ internal class EmailPasswordAuthControllerTest {
                 }
 
             val aliceAccount = userAccountRepository.findByEmail(ALICE.email?.toLowerCase()!!).get()
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
             assertEquals(
-                hashingService.hashBySHA_256(emailServiceToken!!),
+                hashingService.hashBySHA_256(kafkaMessage.token),
                 aliceAccount.emailPasswordAuth?.passwordReset?.token
             )
         }
@@ -389,19 +399,24 @@ internal class EmailPasswordAuthControllerTest {
     }
 
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ResetPassword {
-        var emailServiceEmail: String? = null
-        var emailServiceToken: String? = null
+        lateinit var kafkaMockConsumer: KafkaMockConsumer
+
+        @BeforeAll
+        fun setUpAll() {
+            kafkaMockConsumer = KafkaMockConsumer(kafkaEmbedded)
+        }
 
         @BeforeEach
         fun setUp() {
             userAccountRepository.deleteAll()
+            kafkaMockConsumer.clearRecords()
+        }
 
-            whenever(emailService.sendPasswordResetEmail(any(), any())).then {
-                emailServiceEmail = it.arguments[0] as String?
-                emailServiceToken = it.arguments[1] as String?
-                return@then null
-            }
+        @AfterAll
+        fun tearDown() {
+            kafkaMockConsumer.tearDown()
         }
 
         @Test
@@ -418,11 +433,12 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
 
-            assertEquals(emailServiceEmail, ALICE.email?.toLowerCase())
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            assertEquals(kafkaMessage.email, ALICE.email?.toLowerCase())
 
             val body2 = EPResetPasswordDTO().also {
                 it.newPassword = "admin123"
-                it.token = emailServiceToken
+                it.token = kafkaMessage.token
             }
             authHelper.resetPassword()
                 .with(ANONYMOUS)
@@ -452,7 +468,8 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
 
-            assertEquals(emailServiceEmail, ALICE.email?.toLowerCase())
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            assertEquals(kafkaMessage.email, ALICE.email?.toLowerCase())
 
             val body2 = EPResetPasswordDTO().also {
                 it.newPassword = "admin123"
@@ -486,11 +503,12 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
 
-            assertEquals(emailServiceEmail, ALICE.email?.toLowerCase())
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            assertEquals(kafkaMessage.email, ALICE.email?.toLowerCase())
 
             val body2 = EPResetPasswordDTO().also {
                 it.newPassword = "admin123"
-                it.token = emailServiceToken
+                it.token = kafkaMessage.token
             }
             authHelper.resetPassword()
                 .with(ALICE)
@@ -521,11 +539,12 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
 
-            assertEquals(emailServiceEmail, ALICE.email?.toLowerCase())
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            assertEquals(kafkaMessage.email, ALICE.email?.toLowerCase())
 
             val body2 = EPResetPasswordDTO().also {
                 it.newPassword = "admin123"
-                it.token = emailServiceToken
+                it.token = kafkaMessage.token
             }
             authHelper.resetPassword()
                 .with(DAVE_ADMIN)
@@ -555,11 +574,12 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
 
-            assertEquals(emailServiceEmail, ALICE.email?.toLowerCase())
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            assertEquals(kafkaMessage.email, ALICE.email?.toLowerCase())
 
             val body2 = EPResetPasswordDTO().also {
                 it.newPassword = "admin123".substring(0..MIN_PASSWORD_SIZE)
-                it.token = emailServiceToken
+                it.token = kafkaMessage.token
             }
             authHelper.resetPassword()
                 .with(ANONYMOUS)

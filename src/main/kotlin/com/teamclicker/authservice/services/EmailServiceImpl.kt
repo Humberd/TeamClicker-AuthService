@@ -1,13 +1,16 @@
 package com.teamclicker.authservice.services
 
-import mu.KLogging
+import com.teamclicker.authservice.kafka.KafkaSender
+import com.teamclicker.authservice.kafka.KafkaTopic
+import com.teamclicker.authservice.kafka.dto.PasswordResetEmailKDTO
 import org.springframework.stereotype.Service
 
 @Service
-class EmailServiceImpl : EmailService {
-    override fun sendPasswordResetEmail(email: String, token: String) {
-        logger.error { "Sending Password Reset Email is not implemented yet" }
-    }
+class EmailServiceImpl(
+    private val kafkaSender: KafkaSender
+) : EmailService {
 
-    companion object : KLogging()
+    override fun sendPasswordResetEmail(email: String, token: String) {
+        kafkaSender.send(PasswordResetEmailKDTO(email, token))
+    }
 }

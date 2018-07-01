@@ -1,4 +1,4 @@
-package com.teamclicker.authservice.mocks
+package com.teamclicker.authservice.testConfig.models
 
 import com.teamclicker.authservice.services.EmailService
 

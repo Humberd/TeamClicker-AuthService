@@ -1,4 +1,4 @@
-package com.teamclicker.authservice.testmodels
+package com.teamclicker.authservice.testConfig.models
 
 data class SpringErrorResponse(
     val path: String = "",

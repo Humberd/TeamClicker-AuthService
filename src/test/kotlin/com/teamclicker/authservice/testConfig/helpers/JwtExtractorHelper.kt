@@ -1,10 +1,10 @@
-package com.teamclicker.authservice.testhelpers
+package com.teamclicker.authservice.testConfig.helpers
 
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.Constants.JWT_TOKEN_PREFIX
 import com.teamclicker.authservice.mappers.ClaimsToJWTDataMapper
 import com.teamclicker.authservice.security.CryptoKeys
-import com.teamclicker.authservice.security.JWTData
+import com.teamclicker.authservice.testConfig.models.JWTDataTestWrapper
 import io.jsonwebtoken.Jwts
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service

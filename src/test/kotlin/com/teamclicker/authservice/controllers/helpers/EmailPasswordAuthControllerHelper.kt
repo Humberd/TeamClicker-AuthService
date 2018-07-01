@@ -5,8 +5,8 @@ import com.teamclicker.authservice.dao.Role
 import com.teamclicker.authservice.dao.UserRoleDAO
 import com.teamclicker.authservice.dto.*
 import com.teamclicker.authservice.repositories.UserAccountRepository
-import com.teamclicker.authservice.testhelpers.JwtExtractorHelper
-import com.teamclicker.authservice.testmodels.UserAccountMock
+import com.teamclicker.authservice.testConfig.helpers.JwtExtractorHelper
+import com.teamclicker.authservice.testConfig.models.UserAccountMock
 import org.junit.jupiter.api.Assertions
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity

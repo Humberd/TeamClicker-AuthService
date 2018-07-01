@@ -1,4 +1,4 @@
-package com.teamclicker.authservice.testmodels
+package com.teamclicker.authservice.testConfig.models
 
 import com.teamclicker.authservice.dao.EmailPasswordAuthDAO
 import com.teamclicker.authservice.dto.EPSignInDTO
