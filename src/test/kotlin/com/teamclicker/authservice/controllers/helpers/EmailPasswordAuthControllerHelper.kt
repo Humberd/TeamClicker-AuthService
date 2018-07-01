@@ -1,7 +1,7 @@
 package com.teamclicker.authservice.controllers.helpers
 
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.DAVE_ADMIN
-import com.teamclicker.authservice.dao.Role
+import com.teamclicker.authservice.security.Role
 import com.teamclicker.authservice.dao.UserRoleDAO
 import com.teamclicker.authservice.dto.*
 import com.teamclicker.authservice.repositories.UserAccountRepository

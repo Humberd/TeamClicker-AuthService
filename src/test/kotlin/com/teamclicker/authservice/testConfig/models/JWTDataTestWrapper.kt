@@ -1,6 +1,6 @@
 package com.teamclicker.authservice.testConfig.models
 
-import com.teamclicker.authservice.dao.AuthenticationMethod
+import com.teamclicker.authservice.security.AuthenticationMethod
 
 data class JWTDataTestWrapper(
     val accountId: Long,

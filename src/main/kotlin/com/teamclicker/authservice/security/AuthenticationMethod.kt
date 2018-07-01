@@ -1,4 +1,4 @@
-package com.teamclicker.authservice.dao
+package com.teamclicker.authservice.security
 
 enum class AuthenticationMethod {
     USERNAME_PASSWORD,

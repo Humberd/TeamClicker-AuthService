@@ -1,8 +1,8 @@
 package com.teamclicker.authservice.controllers
 
-import com.teamclicker.authservice.dao.Role.ADMIN
-import com.teamclicker.authservice.dao.Role.USER
-import com.teamclicker.authservice.dao.SpELRole._ADMIN
+import com.teamclicker.authservice.security.Role.ADMIN
+import com.teamclicker.authservice.security.Role.USER
+import com.teamclicker.authservice.security.SpELRole._ADMIN
 import com.teamclicker.authservice.dao.UserAccountDeletionDAO
 import com.teamclicker.authservice.dao.UserRoleDAO
 import com.teamclicker.authservice.dto.AccountUpdateRolesDTO

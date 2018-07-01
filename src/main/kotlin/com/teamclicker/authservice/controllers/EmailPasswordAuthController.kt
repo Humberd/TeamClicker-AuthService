@@ -10,6 +10,7 @@ import com.teamclicker.authservice.exceptions.EntityDoesNotExistException
 import com.teamclicker.authservice.exceptions.InvalidCredentialsException
 import com.teamclicker.authservice.exceptions.InvalidRequestBodyException
 import com.teamclicker.authservice.repositories.UserAccountRepository
+import com.teamclicker.authservice.security.AuthenticationMethod
 import com.teamclicker.authservice.security.JWTData
 import com.teamclicker.authservice.security.JWTHelper
 import com.teamclicker.authservice.services.EmailService

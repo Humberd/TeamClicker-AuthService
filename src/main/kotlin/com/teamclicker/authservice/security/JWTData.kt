@@ -1,6 +1,5 @@
 package com.teamclicker.authservice.security
 
-import com.teamclicker.authservice.dao.AuthenticationMethod
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 data class JWTData(

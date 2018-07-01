@@ -1,6 +1,6 @@
 package com.teamclicker.authservice.dbloaders
 
-import com.teamclicker.authservice.dao.Role
+import com.teamclicker.authservice.security.Role
 import com.teamclicker.authservice.dao.UserRoleDAO
 import com.teamclicker.authservice.repositories.UserRoleRepository
 import org.springframework.boot.ApplicationArguments

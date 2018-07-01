@@ -1,6 +1,6 @@
 package com.teamclicker.authservice.validators;
 
-import com.teamclicker.authservice.dao.RoleType
+import com.teamclicker.authservice.security.RoleType
 import javax.validation.Constraint
 import javax.validation.ConstraintValidator
 import javax.validation.ConstraintValidatorContext
