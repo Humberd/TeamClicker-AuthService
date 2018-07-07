@@ -8,10 +8,10 @@ import com.teamclicker.authservice.controllers.helpers.EmailPasswordAuthControll
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.ALICE
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.BOB
 import com.teamclicker.authservice.controllers.helpers.HttpConstants.DAVE_ADMIN
-import com.teamclicker.authservice.security.Role.ADMIN
-import com.teamclicker.authservice.security.Role.USER
 import com.teamclicker.authservice.dto.AccountUpdateRolesDTO
 import com.teamclicker.authservice.repositories.UserAccountRepository
+import com.teamclicker.authservice.security.Role.ADMIN
+import com.teamclicker.authservice.security.Role.USER
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach

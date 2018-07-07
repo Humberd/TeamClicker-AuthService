@@ -73,7 +73,7 @@ class KafkaMockConsumer(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T: Any> getLatestMessageAs(type: KClass<T>): T {
+    fun <T : Any> getLatestMessageAs(type: KClass<T>): T {
         val received = records.poll(10, TimeUnit.SECONDS)
         return received.value() as T
     }

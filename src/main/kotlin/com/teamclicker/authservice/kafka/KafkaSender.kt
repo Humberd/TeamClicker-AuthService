@@ -18,5 +18,5 @@ class KafkaSender(
         send(KafkaTopic.PASSWORD_RESET_EMAIL, passwordResetEmailKDTO)
     }
 
-    companion object: KLogging()
+    companion object : KLogging()
 }

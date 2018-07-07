@@ -2,16 +2,16 @@ package com.teamclicker.authservice.services
 
 import com.teamclicker.authservice.kafka.KafkaTopic
 import com.teamclicker.authservice.kafka.dto.PasswordResetEmailKDTO
-import com.teamclicker.authservice.testConfig.extensions.fromJson
 import com.teamclicker.authservice.testConfig.kafka.KafkaMockConsumer
 import mu.KLogging
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.kafka.core.ConsumerFactory
-import org.springframework.kafka.test.rule.KafkaEmbedded
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.concurrent.TimeUnit
 

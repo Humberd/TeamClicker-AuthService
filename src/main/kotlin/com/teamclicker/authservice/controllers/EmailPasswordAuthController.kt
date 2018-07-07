@@ -3,7 +3,10 @@ package com.teamclicker.authservice.controllers
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.Constants.RESET_PASSWORD_TOKEN_EXPIRATION_TIME_UNIT
 import com.teamclicker.authservice.Constants.RESET_PASSWORD_TOKEN_EXPIRATION_TIME_VALUE
-import com.teamclicker.authservice.dao.*
+import com.teamclicker.authservice.dao.EmailPasswordAuthDAO
+import com.teamclicker.authservice.dao.PasswordResetDAO
+import com.teamclicker.authservice.dao.UserAccountDAO
+import com.teamclicker.authservice.dao.UserRoleDAO
 import com.teamclicker.authservice.dto.*
 import com.teamclicker.authservice.exceptions.EntityAlreadyExistsException
 import com.teamclicker.authservice.exceptions.EntityDoesNotExistException

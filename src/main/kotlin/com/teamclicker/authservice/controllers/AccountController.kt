@@ -1,8 +1,5 @@
 package com.teamclicker.authservice.controllers
 
-import com.teamclicker.authservice.security.Role.ADMIN
-import com.teamclicker.authservice.security.Role.USER
-import com.teamclicker.authservice.security.SpELRole._ADMIN
 import com.teamclicker.authservice.dao.UserAccountDeletionDAO
 import com.teamclicker.authservice.dao.UserRoleDAO
 import com.teamclicker.authservice.dto.AccountUpdateRolesDTO
@@ -10,6 +7,9 @@ import com.teamclicker.authservice.exceptions.EntityDoesNotExistException
 import com.teamclicker.authservice.exceptions.InvalidCredentialsException
 import com.teamclicker.authservice.repositories.UserAccountRepository
 import com.teamclicker.authservice.security.JWTData
+import com.teamclicker.authservice.security.Role.ADMIN
+import com.teamclicker.authservice.security.Role.USER
+import com.teamclicker.authservice.security.SpELRole._ADMIN
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
