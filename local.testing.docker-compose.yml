@@ -4,12 +4,12 @@ services:
   postgres:
     container_name: tc-auth-service-tests-db
     image: postgres:10-alpine
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: auth-service-tests
       POSTGRES_USERNAME: postgres
       POSTGRES_PASSWORD: admin123
-    networks:
-      - jenkins
   zookeeper:
     image: wurstmeister/zookeeper
     ports:
@@ -23,8 +23,3 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-
-networks:
-  jenkins:
-    external:
-      name: jenkins

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
-import org.springframework.kafka.test.rule.KafkaEmbedded
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 
@@ -39,7 +38,7 @@ internal class EmailPasswordAuthControllerTest {
     @Autowired
     lateinit var authHelper: EmailPasswordAuthControllerHelper
     @Autowired
-    lateinit var kafkaEmbedded: KafkaEmbedded
+    lateinit var kafkaMockConsumer: KafkaMockConsumer
 
     @Nested
     inner class SignUp {
@@ -277,21 +276,10 @@ internal class EmailPasswordAuthControllerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class SendPasswordResetEmail {
-        lateinit var kafkaMockConsumer: KafkaMockConsumer
-        @BeforeAll
-        fun setUpAll() {
-            kafkaMockConsumer = KafkaMockConsumer(kafkaEmbedded)
-        }
-
         @BeforeEach
         fun setUp() {
             userAccountRepository.deleteAll()
             kafkaMockConsumer.clearRecords()
-        }
-
-        @AfterAll
-        fun tearDown() {
-            kafkaMockConsumer.tearDown()
         }
 
         @Test
@@ -311,7 +299,7 @@ internal class EmailPasswordAuthControllerTest {
                 }
 
             val aliceAccount = userAccountRepository.findByEmail(ALICE.email?.toLowerCase()!!).get()
-            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class)
             assertEquals(
                 hashingService.hashBySHA_256(kafkaMessage.token),
                 aliceAccount.emailPasswordAuth?.passwordReset?.token
@@ -396,22 +384,10 @@ internal class EmailPasswordAuthControllerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ResetPassword {
-        lateinit var kafkaMockConsumer: KafkaMockConsumer
-
-        @BeforeAll
-        fun setUpAll() {
-            kafkaMockConsumer = KafkaMockConsumer(kafkaEmbedded)
-        }
-
         @BeforeEach
         fun setUp() {
             userAccountRepository.deleteAll()
             kafkaMockConsumer.clearRecords()
-        }
-
-        @AfterAll
-        fun tearDown() {
-            kafkaMockConsumer.tearDown()
         }
 
         @Test
@@ -428,7 +404,7 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
 
-            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class)
             assertEquals(kafkaMessage.email, ALICE.email?.toLowerCase())
 
             val body2 = EPResetPasswordDTO().also {
@@ -463,7 +439,7 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
 
-            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class)
             assertEquals(kafkaMessage.email, ALICE.email?.toLowerCase())
 
             val body2 = EPResetPasswordDTO().also {
@@ -498,7 +474,7 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
 
-            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class)
             assertEquals(kafkaMessage.email, ALICE.email?.toLowerCase())
 
             val body2 = EPResetPasswordDTO().also {
@@ -534,7 +510,7 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
 
-            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class)
             assertEquals(kafkaMessage.email, ALICE.email?.toLowerCase())
 
             val body2 = EPResetPasswordDTO().also {
@@ -569,7 +545,7 @@ internal class EmailPasswordAuthControllerTest {
                     assertEquals(HttpStatus.OK, it.statusCode)
                 }
 
-            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class.java)
+            val kafkaMessage = kafkaMockConsumer.getLatestMessageAs(PasswordResetEmailKDTO::class)
             assertEquals(kafkaMessage.email, ALICE.email?.toLowerCase())
 
             val body2 = EPResetPasswordDTO().also {

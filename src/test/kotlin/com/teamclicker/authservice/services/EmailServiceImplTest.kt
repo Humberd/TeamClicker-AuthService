@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.test.rule.KafkaEmbedded
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.concurrent.TimeUnit
@@ -20,43 +21,32 @@ import java.util.concurrent.TimeUnit
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EmailServiceImplTest {
 
-    companion object : KLogging()
-
     @Autowired
     lateinit var emailServiceImpl: EmailServiceImpl
 
     @Autowired
-    lateinit var kafkaEmbedded: KafkaEmbedded
     lateinit var kafkaMockConsumer: KafkaMockConsumer
-
-    @BeforeAll
-    fun setUpAll() {
-        kafkaMockConsumer = KafkaMockConsumer(kafkaEmbedded)
-    }
 
     @BeforeEach
     fun setUpEach() {
         kafkaMockConsumer.clearRecords()
     }
 
-    @AfterAll
-    fun tearDown() {
-        kafkaMockConsumer.tearDown()
-    }
-
     @Nested
     inner class SendPasswordResetEmail {
         @Test
         fun `should send Kafka message`() {
-            emailServiceImpl.sendPasswordResetEmail("admin@admin.com", "qwerty")
+            emailServiceImpl.sendPasswordResetEmail("admin@admin.com", "qwerty123")
 
             val received = kafkaMockConsumer.records.poll(10, TimeUnit.SECONDS)
 
             assertEquals(KafkaTopic.PASSWORD_RESET_EMAIL.value, received.topic())
             assertEquals(
-                PasswordResetEmailKDTO("admin@admin.com", "qwerty"),
-                received.value().fromJson(PasswordResetEmailKDTO::class.java)
+                PasswordResetEmailKDTO("admin@admin.com", "qwerty123"),
+                received.value()
             )
         }
     }
+
+    companion object : KLogging()
 }
