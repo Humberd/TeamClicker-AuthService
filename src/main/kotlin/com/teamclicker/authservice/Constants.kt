@@ -1,6 +1,7 @@
 package com.teamclicker.authservice
 
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 
 
 object Constants {
@@ -9,7 +10,8 @@ object Constants {
 
     val JWT_PRIVATE_KEY_NAME = "classpath:jwt_private_key.der"
     val JWT_PUBLIC_KEY_NAME = "classpath:jwt_public_key.der"
-    val JWT_EXPIRATION_TIME = 864000000 // 10 days
+    val JWT_EXPIRATION_TIME = 100_000L
+    val JWT_EXPIRATION_TIME_UNIT = TimeUnit.DAYS
 
     const val MIN_PASSWORD_SIZE = 5
 

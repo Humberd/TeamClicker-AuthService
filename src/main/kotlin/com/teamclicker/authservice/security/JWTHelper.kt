@@ -1,6 +1,7 @@
 package com.teamclicker.authservice.security
 
 import com.teamclicker.authservice.Constants.JWT_EXPIRATION_TIME
+import com.teamclicker.authservice.Constants.JWT_EXPIRATION_TIME_UNIT
 import com.teamclicker.authservice.Constants.JWT_HEADER_NAME
 import com.teamclicker.authservice.Constants.JWT_TOKEN_PREFIX
 import com.teamclicker.authservice.dao.UserAccountDAO
@@ -29,7 +30,7 @@ class JWTHelper(
         return Jwts.builder()
             .setClaims(customClaims)
             .setId(UUID.randomUUID().toString())
-            .setExpiration(Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME))
+            .setExpiration(Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME_UNIT.toMillis(JWT_EXPIRATION_TIME)))
             .setIssuedAt(Date())
             .signWith(SignatureAlgorithm.RS512, cryptoKeys.JWT_PRIVATE_KEY)
             .compact()
