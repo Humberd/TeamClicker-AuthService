@@ -2,7 +2,6 @@ version: "3"
 
 services:
   postgres:
-    container_name: tc-auth-service-tests-db
     image: postgres:10-alpine
     ports:
       - "5440:5432"
@@ -12,12 +11,9 @@ services:
       POSTGRES_PASSWORD: admin123
   zookeeper:
     image: wurstmeister/zookeeper
-    ports:
-      - "2181"
   kafka:
     image: wurstmeister/kafka
     ports:
-      - "32770:32768"
       - "9100:9092"
     environment:
       KAFKA_ADVERTISED_HOST_NAME: 192.168.99.100 #TODO change ip
